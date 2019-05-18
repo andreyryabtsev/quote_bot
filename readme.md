@@ -55,7 +55,7 @@ cp -i ./defaults/* .
     "log_command": "animal",
     "log_response": "Thank you {u}, I have logged your animal product usage."
     ```
-    So by defualt, you are ready to use the logging feature to track your path towards veganism, as an example. Additionally, `{u}` is a placeholder, in this case it is replaced by the logging user's current display name on the server. Adjust the config to your liking and use cases.
+    So by default, you are ready to use the logging feature to track your path towards veganism, as an example. Additionally, `{u}` is a placeholder, in this case it is replaced by the logging user's current display name on the server. Adjust the config to your liking and use cases.
 
 3. `save.json`
     * This file stores all the information accumulated by the bot for functioning. It should generally not need manual modification, although sometimes you may want to alter it after the bot has been functioning for a while. Upcoming features include a migration to a relational database and the addition of a server-side administrative console for convenient modifications to data that do not warrant `!` in-Discord commands, so stay tuned for the bot to become more performant, greater ease of data editing, and better experience for the hoster.
