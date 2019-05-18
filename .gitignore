@@ -1,0 +1,10 @@
+log.txt
+helpfile
+save.json
+auth.json
+config.json
+pid
+node_modules/
+package-lock.json
+chart.png
+todo
