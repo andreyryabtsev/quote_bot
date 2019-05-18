@@ -379,7 +379,7 @@ client.on('message', (message) => {
             case 'quote':
                 let query = args.join(" ");
                 let quotes, quote;
-                if (query) {
+                if (query || savedData["quotes"].length == 0) {
                     quotes = savedData["quotes"].filter(q=>q.t.includes(query));
                     if(quotes.length == 0) {
                         message.channel.send(config["quote_error"]);
