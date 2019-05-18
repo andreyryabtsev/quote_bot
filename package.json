@@ -1,0 +1,15 @@
+{
+  "name": "counter-bot",
+  "version": "1.0.0",
+  "description": "multi-purpose Discord bot for tracking quotes",
+  "main": "bot.js",
+  "author": "Andrey Ryabtsev",
+  "dependencies": {
+    "discord.io": "github:woor/discord.io#gateway_v6",
+    "discord.js": "^11.4.2"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "keywords": [],
+  "license": "ISC"
+}
