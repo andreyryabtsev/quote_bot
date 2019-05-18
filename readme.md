@@ -84,7 +84,7 @@ The master branch will be kept stable, so can always be cloned to get the newest
 
 ## Authors
 
-* **[Andrey Ryabtsev](ryabtsev@cs.washington.edu)** - *Creator/Developer*
+* **[Andrey Ryabtsev](mailto:ryabtsev@cs.washington.edu)** - *Creator/Developer*
 
 ## License
 
