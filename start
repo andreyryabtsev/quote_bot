@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-node bot.js >> log.txt & echo $! > pid
+node bot.js >> log.txt 2>errorlog.txt & echo $! > pid
