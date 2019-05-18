@@ -8,3 +8,4 @@ node_modules/
 package-lock.json
 chart.png
 todo
+hacc.js
