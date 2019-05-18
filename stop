@@ -1,2 +1,7 @@
 #!/usr/bin/env bash
-kill -9 `cat ./pid`
+if [ -f "./pid" ]; then
+    kill -9 `cat ./pid`
+    rm ./pid
+else
+    echo "bot.js is not running. start with ./start or use \`ps\` to find and kill its lost process"
+fi
