@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 if [ -f "./pid" ]; then
-    kill -9 `cat ./pid`
+    pid=`cat ./pid`
+    echo "bot was running with PID "$pid", stopped"
+    kill -9 $pid
     rm ./pid
 else
     if [ $# = 1 ]; then
