@@ -402,10 +402,9 @@ client.on('message', (message) => {
 
 
                     // calculate the glossary of appearances of words in the last k quotes
-                    let M = 0.3; // WEIGHT OF RANDOM SELECTION
-                    let D = 0.7; // WEIGHT OF BIASED SELECTION
-                    let E = 2; // EXPONENTIATION POWER OF RELEVANCY SCORES (higher = especially matching quotes more valuable, 0 = all relevant quotes are equal)
-                    let k = 7, K = 1; // k = how many messages to scan, K = total words found (start at 1 just in case no words found - then g = 0 always but K too so div by 0) 
+                    let D = 0.7; // PERCENT OF TOTAL WEIGHT DUE TO RELEVANCY
+                    let E = 2.2; // EXPONENTIATION POWER OF RELEVANCY SCORES (higher = skew to the most relevant, 0 = any relevance is equal to any other)
+                    let k = 7, K = 1;
                     let glossary = {};
                     message.channel.fetchMessages({ limit: k * 9, before: message.id}).then(messages=>{
                         let msgs = [];
@@ -438,13 +437,11 @@ client.on('message', (message) => {
                                 // if word not in glossary, add 0 to rank instead
                                 g += (glossary[w] || 0.0) / popularity[w]; // frequency of this word in the last k quotes over how common it is 
                             });
-                            if (g > 15) console.log("g = " + Math.pow(g, E) + ", " + q.t);
                             g = Math.pow(g, E);
                             rankSum += g;
-
                             return {q:q, rank:g};
                         });
-                        quotes = quotes.map(q=>({q:q.q, rank: D * q.rank / rankSum + M / quotes.length}));
+                        quotes = quotes.map(q=>({q:q.q, rank: D * q.rank / rankSum + (1.0 - D) / quotes.length}));
                         // for debugging/analysis: log the 10 most likely quotes
                         quotes.sort((a,b)=>b.rank - a.rank);
                         for (let i = 0; i < 10; i++) console.log(quotes[i].q.t + ": " + quotes[i].rank);
