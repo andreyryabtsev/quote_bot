@@ -404,7 +404,7 @@ client.on('message', (message) => {
                     // calculate the glossary of appearances of words in the last k quotes
                     let M = 0.3; // WEIGHT OF RANDOM SELECTION
                     let D = 0.7; // WEIGHT OF BIASED SELECTION
-                    let E = 1.5; // EXPONENTIATION POWER OF RELEVANCY SCORES (higher = especially matching quotes more valuable, 1 = all relevant quotes are equal)
+                    let E = 2; // EXPONENTIATION POWER OF RELEVANCY SCORES (higher = especially matching quotes more valuable, 0 = all relevant quotes are equal)
                     let k = 7, K = 1; // k = how many messages to scan, K = total words found (start at 1 just in case no words found - then g = 0 always but K too so div by 0) 
                     let glossary = {};
                     message.channel.fetchMessages({ limit: k * 9, before: message.id}).then(messages=>{
@@ -429,7 +429,6 @@ client.on('message', (message) => {
                                 count++;
                             });
                         });
-                        //quoteGSum = 0.0, quoteGDiscountedSum = 0.0;
                         let rankSum = 0.0;
                         quotes = savedData["quotes"].map(q=>{
                             let g = 0;
@@ -441,18 +440,13 @@ client.on('message', (message) => {
                             });
                             if (g > 15) console.log("g = " + Math.pow(g, E) + ", " + q.t);
                             g = Math.pow(g, E);
-                            // quoteGSum += g;
-                            // quoteGDiscountedSum += g / qwords.length;
                             rankSum += g;
 
                             return {q:q, rank:g};
                         });
-                        console.log("rankSum = " + rankSum);
-                        //quoteLengthNormalizer = quoteGSum / quoteGDiscountedSum; // normalize for popularity first, THEN add normalized saved quotes
-                        // quotes.forEach(q=>{q.rank = q.rank / toWords(q.q.t).length * quoteLengthNormalizer + M / savedData["quotes"].length;});
-                        // quotes.forEach(q=>{rankSum += q.rank;});
                         quotes = quotes.map(q=>({q:q.q, rank: D * q.rank / rankSum + M / quotes.length}));
-                        quotes.sort((a,b)=>b.rank - a.rank); //sort in decreasing order
+                        // for debugging/analysis: log the 10 most likely quotes
+                        quotes.sort((a,b)=>b.rank - a.rank);
                         for (let i = 0; i < 10; i++) console.log(quotes[i].q.t + ": " + quotes[i].rank);
                         // weighted random
                         let theta = Math.random(), m = 0.0;
