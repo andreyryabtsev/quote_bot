@@ -429,26 +429,27 @@ client.on('message', (message) => {
                                 count++;
                             });
                         });
-                        quoteGSum = 0.0, quoteGDiscountedSum = 0.0;
+                        //quoteGSum = 0.0, quoteGDiscountedSum = 0.0;
+                        let rankSum = 0.0;
                         quotes = savedData["quotes"].map(q=>{
                             let g = 0;
                             // for each word in this quote, increment its rank based on how unusually relevant the appearance of this word was in the last k messages
                             let qwords = toWords(q.t);
                             qwords.forEach(w=>{
                                 // if word not in glossary, add 0 to rank instead
-                                g += (glossary[w] || 0.0) * D / popularity[w]; // chance this word appeared in the last k quotes over how common it is 
+                                g += (glossary[w] || 0.0) / popularity[w]; // frequency of this word in the last k quotes over how common it is 
                             });
                             g = Math.pow(g, E);
-                            quoteGSum += g;
-                            quoteGDiscountedSum += g / qwords.length;
+                            // quoteGSum += g;
+                            // quoteGDiscountedSum += g / qwords.length;
+                            rankSum += g;
 
                             return {q:q, rank:g};
                         });
-                        quoteLengthNormalizer = quoteGSum / quoteGDiscountedSum;
-                        quotes.forEach(q=>{q.rank = q.rank / toWords(q.q.t).length * quoteLengthNormalizer + M / savedData["quotes"].length;});
-                        let rankSum = 0.0;
-                        quotes.forEach(q=>{rankSum += q.rank;});
-                        quotes = quotes.map(q=>({q:q.q, rank: q.rank / rankSum}));
+                        //quoteLengthNormalizer = quoteGSum / quoteGDiscountedSum; // normalize for popularity first, THEN add normalized saved quotes
+                        // quotes.forEach(q=>{q.rank = q.rank / toWords(q.q.t).length * quoteLengthNormalizer + M / savedData["quotes"].length;});
+                        // quotes.forEach(q=>{rankSum += q.rank;});
+                        quotes = quotes.map(q=>({q:q.q, rank: D * q.rank / rankSum + M / quotes.length}));
                         quotes.sort((a,b)=>b.rank - a.rank); //sort in decreasing order
                         for (let i = 0; i < 10; i++) console.log(quotes[i].q.t + ": " + quotes[i].rank);
                         // weighted random
