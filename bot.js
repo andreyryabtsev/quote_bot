@@ -439,6 +439,7 @@ client.on('message', (message) => {
                                 // if word not in glossary, add 0 to rank instead
                                 g += (glossary[w] || 0.0) / popularity[w]; // frequency of this word in the last k quotes over how common it is 
                             });
+                            if (g > 3) console.log("g = " + g + ", " + q.t);
                             g = Math.pow(g, E);
                             // quoteGSum += g;
                             // quoteGDiscountedSum += g / qwords.length;
@@ -446,6 +447,7 @@ client.on('message', (message) => {
 
                             return {q:q, rank:g};
                         });
+                        console.log("rankSum = " + rankSum);
                         //quoteLengthNormalizer = quoteGSum / quoteGDiscountedSum; // normalize for popularity first, THEN add normalized saved quotes
                         // quotes.forEach(q=>{q.rank = q.rank / toWords(q.q.t).length * quoteLengthNormalizer + M / savedData["quotes"].length;});
                         // quotes.forEach(q=>{rankSum += q.rank;});
