@@ -3,7 +3,7 @@ if [ -f "./pid" ]; then
     kill -9 `cat ./pid`
     rm ./pid
 else
-    if [$# -e 1]; then
+    if [$# = 1]; then
         echo "bot was not running previously"
     else
         echo "bot is not running. start with ./start or use \`ps\` to find and kill its lost process"
