@@ -439,7 +439,7 @@ client.on('message', (message) => {
                                 // if word not in glossary, add 0 to rank instead
                                 g += (glossary[w] || 0.0) / popularity[w]; // frequency of this word in the last k quotes over how common it is 
                             });
-                            if (g > 3) console.log("g = " + g + ", " + q.t);
+                            if (g > 15) console.log("g = " + Math.pow(g, E) + ", " + q.t);
                             g = Math.pow(g, E);
                             // quoteGSum += g;
                             // quoteGDiscountedSum += g / qwords.length;
