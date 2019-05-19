@@ -3,4 +3,5 @@ if [ -f "./pid" ]; then
     echo "bot.js appears to already be running. use ./stop, ./restart, or if you \`rm pid\` if this is an error"
 else
     node bot.js >> log.txt 2>errorlog.txt & echo $! > pid
+    echo "bot started with PID "$!
 fi
