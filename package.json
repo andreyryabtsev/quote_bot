@@ -5,7 +5,8 @@
   "main": "bot.js",
   "author": "Andrey Ryabtsev",
   "dependencies": {
-    "discord.js": "^11.4.2"
+    "discord.js": "^11.4.2",
+    "mysql": "2.17.1"
   },
   "devDependencies": {},
   "scripts": {},

@@ -1,47 +1,7 @@
 const QUOTE_PIN_EMOTE = "📌", ANTI_QUOTE_PIN_EMOTE = "👎", VOTE_REACTS = ["\u0031\u20E3","\u0032\u20E3","\u0033\u20E3","\u0034\u20E3","\u0035\u20E3", "\u0036\u20E3","\u0037\u20E3","\u0038\u20E3","\u0039\u20E3", "\u0030\u20E3"];
 const QUOTE_PIN_THRESH = 2;
-const PERMISSIONS = {"ADMIN": 1, "QUOTEKILL": 2, "UNDO": 4};
-const DEFAULT_PERMISSIONS = 4;
 
-const Discord = require("discord.js");
-const client = new Discord.Client();
-const fs = require('fs');
-const DEBUG = false;
-var auth = require('./auth.json');
-client.on('ready', function (evt) {
-    console.log('Connected');
-});
 
-var savedData = {}, config = {};
-
-function save() {
-    fs.writeFile("./save.json", JSON.stringify(savedData), 'utf8');
-}
-
-function emptySaveFile() {
-    return {quotes: [], users: []};
-}
-
-function load() {
-    fs.readFile("./save.json", 'utf8', (err, data) => {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        }
-        savedData = JSON.parse(data);
-        if(!savedData["votes"]) savedData["votes"] = [];
-        if(!savedData["list"]) savedData["list"] = [];
-        if(!savedData["cfg"]) savedData["cfg"] = {"terminal": TERMINAL_TOKENS};
-        savedData["cfg"]["recursive"] = RECURSIVE_TOKENS;
-    });
-    fs.readFile("./config.json", 'utf8', (err, data) => {
-        if (err) {
-            console.log(err);
-            process.exit(1);
-        }
-        config = JSON.parse(data);
-    });
-}
 
 function formatDuration(ms) {
     let result = "",
@@ -61,48 +21,11 @@ function sendQuote(channel, userID, content) {
     channel.send('*"' + content + '"*\n                                        -' + name);
 }
 
-function getUserPermission(id, permissionName, channel) {
-    let valid = PERMISSIONS[permissionName] && savedData["users"][id] && savedData["users"][id]["p"] && (savedData["users"][id]["p"] & (PERMISSIONS[permissionName] | PERMISSIONS["ADMIN"])) != 0;
-    if(!valid && channel) {
-        channel.send();
-    }
-    return valid;
-}
-
-function ensureUser(id) {
-    if(!savedData["users"][id]) savedData["users"][id] = {};
-    if(!savedData["users"][id]["t"]) savedData["users"][id]["t"] = [];
-    if(!savedData["users"][id]["p"]) savedData["users"][id]["p"] = DEFAULT_PERMISSIONS;
-}
-
 function fillUpTo(message, curr, max) {
     if(curr == max) return;
     message.react(VOTE_REACTS[curr]).then(r=>fillUpTo(r.message, curr + 1, max));
 }
 
-function produceChart(channel, users, members, days) {
-    let timestamps = [], nicknames = [];
-    let call = "python3 ./chartgen.py " + days + " " + users.length + " " + Date.now() + " ";
-    for (let i = 0; i < users.length; i++) {
-        timestamps[i] = "" + savedData["users"][users[i].id]["t"].map(tt=>tt.d);
-        if (savedData["users"][users[i].id]["t"].length == 0) timestamps[i] = ["0"];
-        nicknames[i] = members[i].displayName.replace(/'/g,"");
-    }
-    for (let i = 0; i < users.length; i++) call += timestamps[i] + " ";
-    for (let i = 0; i < users.length; i++) call += "'" + nicknames[i] + "' ";
-
-    let chartgen = require('child_process').exec(call, (error, stdout, stderr) => {
-        console.log("ERROR: " + error);
-        console.log("STDOUT: " + stdout);
-        console.log("STDERR: " + stderr);
-        channel.send({
-            files: [{
-                attachment: './chart.png',
-                name: 'botchart.png'
-            }]
-        })
-    });
-}
 
 //********************* CFG
 // THESE ARE DEFAULTS ONLY
@@ -250,15 +173,6 @@ client.on('message', (message) => {
                     message.channel.send(outputString);
                 });
                 break;
-            case 'f':
-                if(getUserPermission(message.author.id, "ADMIN", message.channel)) {
-                    let member = message.mentions.members.first();
-                    if (member) {
-                        let fc = member.guild.channels.find(c=>c.name==config["afk_chat_name"]);
-                        member.setVoiceChannel(fc);
-                    }
-                }
-                break;
             case config["log_command"]:
                 ensureUser(message.author.id);
                 savedData["users"][message.author.id]["t"].push({"d": Date.now(), "c": args.join(" ")});
@@ -288,20 +202,6 @@ client.on('message', (message) => {
                 } else {
                     message.channel.send(config["when_error"].replace("{u}", nickname));
                 }
-                break;
-            case 'chart':
-                let dCount = parseInt(args[0]);
-                if (!(dCount > 0 && dCount <= 365)) {
-                    message.channel.send(config["chart_error"]);
-                    return;
-                }
-                let mentionUsers = message.mentions.users.array(), mentionMembers = message.mentions.members.array();
-                if (mentionUsers.length == 0) {
-                    mentionUsers = [message.author];
-                    mentionMembers = [message.member];
-                }
-                for(let uuu = 0; uuu < mentionUsers; uuu++) ensureUser(mentionUsers[uuu].id);
-                produceChart(message.channel, mentionUsers, mentionMembers, dCount);
                 break;
             case 'signature':
                 if(args.length == 0) return;
@@ -341,28 +241,6 @@ client.on('message', (message) => {
                 }
                 let rid = Math.floor(Math.random() * (items.length));
                 message.channel.send(items[rid]);
-                break;
-            case 'addquote':
-                if(!message.mentions.users.first()) {
-                    message.channel.send(config["add_quote_error"]);
-                    return;
-                }
-                let q = { "u": message.mentions.users.first().id, "t": args.splice(1).join(" ") };
-                savedData["quotes"].push(q);
-                save();
-                message.react("👍");
-                break;
-            case 'delquote':
-                if(getUserPermission(message.author.id, "ADMIN", message.channel)) {
-                    let query = args.join(" ");
-                    for (let i = 0; i < savedData["quotes"].length; i++) {
-                        if (savedData["quotes"][i].t.includes(query)) {
-                            savedData["quotes"].splice(i, 1);
-                        }
-                    }
-                    save();
-                    message.react("👍");
-                }
                 break;
             case config["delete_list_command"]:
                 if(getUserPermission(message.author.id, "ADMIN", message.channel)) {
@@ -463,18 +341,6 @@ client.on('message', (message) => {
                 nquotes = nquery ? savedData["quotes"].filter(q=>q.t.includes(nquery)) : savedData["quotes"];
                 message.channel.send(config["num_quotes"].replace("{n}", nquotes.length));
                 break;
-            case 'clear':
-                if(getUserPermission(message.author.id, "ADMIN", message.channel)) {
-                    let count = parseInt(args[0]);
-                    if(count <= 0 || count > 100) {
-                        message.channel.send(config["clear_error"]);
-                        return;
-                    }
-                    message.channel.bulkDelete(count + 1).then(messages => {
-                        message.channel.send(config["clear_response"].replace("{n}", count)).then(message => message.delete(3000));
-                    });
-                }
-                break;
             case 'speak':
                 let gencount = parseInt(args[0]);
                 if (!(gencount > 0 && gencount <= 25)) gencount = 1;
@@ -512,28 +378,6 @@ client.on('message', (message) => {
                     save();
                     message.react("👍");
                 }
-                break;
-            case 'forget':
-                if(true || getUserPermission(message.author.id, "ADMIN", message.channel)) {
-                    if (args.length < 2) {
-                        message.channel.send(config["forget_error"]);
-                        return;
-                    }
-                    let words = fetchVocab(args[0], message.channel);
-                    if(words != null) {
-                        let toremove = args.splice(1).join(" ");
-                        if (!words.includes(toremove)) {
-                            message.channel.send(config["forget_repeat_error"]);
-                            return;
-                        }
-                        words.splice(words.indexOf(toremove), 1);
-                        save();
-                        message.react("👍");
-                    }
-                }
-                break;
-            case 'help':
-                fs.readFile('./helpfile', 'utf8', (e, d) => message.channel.send(d));
                 break;
             case 'debug':
                 if(!DEBUG) return;

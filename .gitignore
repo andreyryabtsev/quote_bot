@@ -7,3 +7,6 @@ package-lock.json
 chart.png
 todo
 hacc.js
+save.json
+auth.json
+config.json

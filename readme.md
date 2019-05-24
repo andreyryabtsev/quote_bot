@@ -31,7 +31,7 @@ Clone this repository:
 git clone https://github.com/andreyryabtsev/counter_bot.git && cd counter_bot
 ```
 
-Install the `discord.js` and any other dependencies:
+Install the `discord.js`, `mysql`, and any other dependencies:
 
 ```
 npm install
