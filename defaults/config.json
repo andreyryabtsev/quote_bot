@@ -1,5 +1,6 @@
 {
     "permission_denied_error": "You do not have permission to access this command!",
+    "bot_name": "counter bot",
     "ping_response": "!pong",
     "plain_responses": {},
     "vote_proposal": "{u} wants to vote on *{n}*\n{v}",
@@ -29,6 +30,7 @@
         "relevant_exponentiation": 2.2,
         "relevant_message_count": 7
     },
+    "pin_threshold": 2,
     "num_quotes": "I found {n} quotes.",
     "clear_error": "Please specify a number of messages to remove (between 0 and 100)",
     "clear_response": "I have cleared {n} message for you.",
