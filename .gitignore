@@ -4,7 +4,8 @@ helpfile
 pid
 node_modules/
 package-lock.json
-chart.png
+chart/chart.png
+chart/chartdata
 todo
 hacc.js
 save.json

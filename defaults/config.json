@@ -13,7 +13,7 @@
     "delete_list_command": "dellist",
     "item_error": "Sadly, the list is empty.",
     "undo_response": "{u}, I removed your last log entry!",
-    "undo_error": "You have never used a bad meme!",
+    "undo_error": "You have never used an animal product!",
     "when_response": "It has been {d} since {u} has used animal products! {s}",
     "when_error": "To my knowledge, {u} has never used an animal product. Commendable!",
     "chart_error": "Please specify between 1 and 365 days as the day count.",
@@ -22,6 +22,12 @@
     "set_quote_name_error": "Please @mention someone and then write their new quote attribution name.",
     "add_quote_error": "Please @mention someone and then write their new quote attribution name.",
     "quote_error": "Sadly, no quotes are available.",
+    "quote_response": "*\"{q}*\"\n                                        -{u}",
+    "quote_params": {
+        "relevant_probability": 0.7,
+        "relevant_exponentiation": 2.2,
+        "relevant_message_count": 7
+    },
     "num_quotes": "I found {n} quotes.",
     "clear_error": "Please specify a number of messages to remove (between 0 and 100)",
     "clear_response": "I have cleared {n} message for you.",
@@ -31,6 +37,7 @@
     "forget_error": "Please specify a part of speech and a word.",
     "forget_repeat_error": "I never knew this word!",
     "part_of_speech_error": "Valid parts of speech are: {c}",
+    "vocab_error": "Please supply a valid part of speech or \"all\".",
     "love_response": "Aww! :)",
     "afk_chat_name": "AFK"
 }
