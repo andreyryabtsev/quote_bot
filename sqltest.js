@@ -23,7 +23,7 @@ function main() {
 }
 
 function coreLogic() {
-    client.on('ready', e=>console.log("[BOOT] Signed in to Discord account."));
+    client.on('ready', e => console.log("[BOOT] Signed in to Discord account."));
     client.on('message', (message) => {
         if (message.content.startsWith("!")) {
             let argIndex = message.content.indexOf(" ");
@@ -53,6 +53,8 @@ const RECURSIVE_TOKENS = {
 };
 
 const VOCAB_WORDS_PER_MESSAGE = 120;
+
+const VOTE_REACTIONS = ["\u0031\u20E3","\u0032\u20E3","\u0033\u20E3","\u0034\u20E3","\u0035\u20E3", "\u0036\u20E3","\u0037\u20E3","\u0038\u20E3","\u0039\u20E3", "\u0030\u20E3"];
 
 // ------------------- FEATURES (more complex functionality) -----------------------
 
@@ -154,12 +156,35 @@ let getCFGSentences = (n, callback, init) => {
     } else {
         getCFGSentence(sentence => {
             sentencesCache.push(sentence);
-            getCFGSentences(n-1, callback, true);
+            getCFGSentences(n - 1, callback, true);
         });
     }
 }
 
-
+let addVoteReactions = (message, i, n) => {
+    if (i == n) return;
+    message.react(VOTE_REACTIONS[i]).then(r => addVoteReactions(message, i + 1, n));
+}
+let parseVoteMessage = (message, voteInfo) => {
+    let longestOption = 0, totalVotes = 0;
+    let votes = [];
+    message.reactions.forEach(reaction => {
+        let optionIndex = VOTE_REACTIONS.indexOf(reaction.emoji.name);
+        if (optionIndex > -1 && optionIndex < voteInfo.options.length) {
+            totalVotes += reaction.count - 1;
+            let label = voteInfo.options[optionIndex];
+            if (label.length > longestOption) longestOption = label.length;
+            votes.push({label: label, count: reaction.count - 1})
+        }
+    });
+    let output = "```\n" + voteInfo.content + ":\n";
+    for (let vote of votes) {
+        let percentage = totalVotes == 0 ? "0.00" : (vote.count / totalVotes * 100).toFixed(2);
+        output += vote.label + " ".repeat(longestOption - vote.label.length) + ": " + vote.count + " (" + percentage + "%)\n";
+    }
+    output += "```";
+    return output;
+}
 
 
 
@@ -415,6 +440,54 @@ commands["vocab"] = (message, text) => {
             });
         }
     }
+}
+
+commands["vote"] = (message, text) => {
+    let args = util.args(text);
+    if (args.length < 3) {
+        message.channel.send(config["vote_error"]);
+        return;
+    }
+    let count = parseInt(args[0]), options = [];
+    if (count <= 0 || count > 10 || args.length < count + 1) {
+        message.channel.send(config["vote_error"]);
+        return;
+    }
+
+    let voteString = VOTE_REACTIONS[0] + ": " + args[1];
+    for (let i = 0; i < count; i++) {
+        options.push(args[i + 1]);
+        if (i > 0) voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
+    }
+    let voteName = args.slice(count + 1).join(" ");
+    let voteProposalString = config["vote_proposal"]
+        .replace("{u}", message.member.displayName)
+        .replace("{n}", voteName)
+        .replace("{v}", voteString);
+    message.channel.send(voteProposalString).then(voteMessage => {
+        db.addVote(voteName, message.channel.id, voteMessage.id, options, Date.now(), message.author.id, () => {});
+        addVoteReactions(voteMessage, 0, options.length);
+    });
+}
+
+commands["votestatus"] = (message, text) => {
+    db.lastVote(text, vote => {
+        if (!vote) {
+            if (text) {
+                message.channel.send(config["vote_search_error"]);
+            } else {
+                message.channel.send(config["votes_empty_error"]);
+            }
+        } else {
+            // Try to find correct channel, default to current one
+            let voteChannel = client.channels.get(vote.discord_channel_id) || message.channel;
+            voteChannel.fetchMessage(vote.discord_message_id).then(voteMessage => {
+                message.channel.send(parseVoteMessage(voteMessage, vote));
+            }).catch(error => {
+                message.channel.send(config["vote_corruption_error"]);
+            });
+        }
+    });
 }
 
 commands["when"] = (message, text) => {

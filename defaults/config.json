@@ -5,6 +5,7 @@
     "vote_proposal": "{u} wants to vote on *{n}*\n{v}",
     "vote_error": "Please specify the number of options, list the options, and then name the vote!",
     "vote_search_error": "A vote by this name does not exist!",
+    "vote_corruption_error": "The message representing this vote was deleted.",
     "votes_empty_error": "You have never created a vote!",
     "log_command": "animal",
     "log_response": "Thank you {u}, I have logged your animal product usage.",

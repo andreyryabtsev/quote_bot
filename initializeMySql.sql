@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS quotes(
 CREATE TABLE IF NOT EXISTS votes(
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
+    discord_channel_id TEXT NOT NULL,
     discord_message_id TEXT NOT NULL,
     options JSON NOT NULL,
     created_at TEXT NOT NULL,
