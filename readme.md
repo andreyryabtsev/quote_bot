@@ -37,9 +37,9 @@ Install the `discord.js`, `mysql`, and any other dependencies:
 npm install
 ```
 
-Run the initializer script, which updates MySQL settings to support emoji/Unicode, starts a MySQL service, and initializes the bot database and local account:
+Run the initializer script, which updates MySQL settings to support emoji/Unicode, starts a MySQL service, and initializes the bot database with a privilleged local account:
 ```
-./dbinit
+sudo ./dbinit
 ```
 
 ## Running the bot
