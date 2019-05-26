@@ -15,15 +15,35 @@ function main() {
     configurableCommands();
     console.log("[BOOT] Loaded auth and config.");
     client = new discord.Client();
-    coreLogic();
+    bindAPIEvents();
     client.login(auth.token).catch(error=>{
         console.error(error);
         process.exit(1);
     });
 }
 
-function coreLogic() {
-    client.on('ready', e => console.log("[BOOT] Signed in to Discord account."));
+function initializeAllUsers(callback) {
+    let userIDs = [];
+    client.guilds.forEach(guild => {
+        if (guild.available) {
+            guild.members.forEach(member => {
+                userIDs.push(member.user.id);
+            });
+        }
+    });
+    db.addUsersIfNew(userIDs, callback);
+}
+
+function bindAPIEvents() {
+    client.on('ready', e => {
+        console.log("[BOOT] Signed in to Discord account.");
+        initializeAllUsers(() => {
+            console.log("[BOOT] Initialized all data, ready.");
+        });
+    });
+    client.on('guildMemberAdd', (member) => {
+        db.addUsersIfNew([member.user.id], () => {});
+    });
     client.on('message', (message) => {
         if (message.content.startsWith("!")) {
             let argIndex = message.content.indexOf(" ");
@@ -135,7 +155,7 @@ let parseCFG = (tk) => {
         }
         let typeID = PARTS_OF_SPEECH.indexOf(token);
         if (typeID > -1) {
-            return util.simpleRandom(vocabCache[typeID]);
+            return util.simpleRandom(vocabCache[typeID]) || token;
         }
         return token;
     });
@@ -298,8 +318,7 @@ commands["f"] = (message) => {
     util.getPermission(db, message.author.id, "ADMIN", message.channel, () => {
         let member = message.mentions.members.first();
         if (member) {
-            let afkChannel = member.guild.channels.find(c=>c.name==config["afk_chat_name"]);
-            member.setVoiceChannel(afkChannel);
+            member.setVoiceChannel(member.guild.afkChannel);
         }
     });
 }

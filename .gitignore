@@ -7,7 +7,5 @@ package-lock.json
 chart/chart.png
 chart/chartdata
 todo
-hacc.js
-save.json
 auth.json
 config.json
