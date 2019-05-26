@@ -47,6 +47,7 @@ function bindAPIEvents() {
         db.addUsersIfNew([member.user.id], () => {});
     });
     client.on('message', (message) => {
+        console.log(message.author.username + ": " + message.content);
         if (message.content.startsWith("!")) {
             let argIndex = message.content.indexOf(" ");
             let cmd = argIndex == -1 ? message.content.substring(1) : message.content.substring(1, argIndex);
