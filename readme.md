@@ -13,10 +13,10 @@ It is assumed that python 3.x is installed on the machine and can be invoked via
 
 ### Installation
 
-First, ensure that `nodejs`, `npm`, and `python3-pip` are available on the system:
+First, ensure that `nodejs`, `npm`, `mysql-server` and `python3-pip` are available on the system:
 
 ```
-sudo apt install -y nodejs npm python3-pip
+sudo apt install -y nodejs npm python3-pip mysql-server
 ```
 
 Install matplotlib if not already installed; it is used for generating event log charts (`!chart`):
@@ -41,7 +41,7 @@ npm install
 
 ### Copy/modify files
 
-The bot uses three files presently, listed below. Run this to copy the defaults and modify them according to your needs.
+The bot uses two files presently, listed below. Run this to copy the defaults and modify them according to your needs.
 ```
 cp -i ./defaults/* .
 ```
@@ -57,22 +57,21 @@ cp -i ./defaults/* .
     ```
     So by default, you are ready to use the logging feature to track your path towards veganism, as an example. Additionally, `{u}` is a placeholder, in this case it is replaced by the logging user's current display name on the server. Adjust the config to your liking and use cases.
 
-3. `save.json`
-    * This file stores all the information accumulated by the bot for functioning. It should generally not need manual modification, although sometimes you may want to alter it after the bot has been functioning for a while. Upcoming features include a migration to a relational database and the addition of a server-side administrative console for convenient modifications to data that do not warrant `!` in-Discord commands, so stay tuned for the bot to become more performant, greater ease of data editing, and better experience for the hoster.
-
 ### Scripts
 
-The repository includes three BASH executable scripts:
-1. `start` launches the bot and redirects the output (every posted message, some debug information, and errors) to `log.txt` and `errorlog.txt`, for later examination. If you experience issues please use the relevant contents of these two files to report them. Additionally, the process is detached and its PID is saved to `pid` file for tracking. The bot will not start if it is already running (per the presence of `pid`) and will inform you of the issue.
-2. `stop` reads the `pid` file created by `start` and kills the bot's process, deleting the file. If the file is not found it will inform you.
-3. `restart` simply executes `stop` and `start` consecutively. It is useful when pulling in an update and wanting to restart or to verify that there is no running instance when starting (for the latter reason `start` should rarely be used on its own).
+The repository includes four BASH executable scripts:
+1. `dbinit` prepares the database for the bot. It must be run with `sudo` as part of the setup and should not be used again.
+2. `start` launches the bot and redirects the output (every posted message, some debug information, and errors) to `log.txt` and `errorlog.txt`, for later examination. If you experience issues please use the relevant contents of these two files to report them. Additionally, the process is detached and its PID is saved to `pid` file for tracking. The bot will not start if it is already running (per the presence of `pid`) and will inform you of the issue.
+3. `stop` reads the `pid` file created by `start` and kills the bot's process, deleting the file. If the file is not found it will inform you.
+4. `restart` simply executes `stop` and `start` consecutively. It is useful when pulling in an update and wanting to restart or to verify that there is no running instance when starting (for the latter reason `start` should rarely be used on its own).
 
 Assuming no errors, once `start` or `restart` execute, the bot should be up and ready for interaction. Make sure that the needed files are prepared, the auth key is correct, and check the `errorlog.txt` if problems arise.
 
 ## Built With
 
 * [node.js](https://nodejs.org/en/) - Lightweight JavaScript server
-* [discord.js](https://discord.js.org/#/) - Excellent node module for interacting with the Discord API with ease
+* [discord.js](https://discord.js.org/#/) - Node module for interacting with the Discord API with ease
+* [mysql](https://www.npmjs.com/package/mysql) - Bridge from node to MySQL server
 
 ## Contributing
 
