@@ -37,6 +37,11 @@ Install the `discord.js`, `mysql`, and any other dependencies:
 npm install
 ```
 
+Run the initializer script, which updates MySQL settings to support emoji/Unicode, starts a MySQL service, and initializes the bot database and local account:
+```
+./dbinit
+```
+
 ## Running the bot
 
 ### Copy/modify files
@@ -59,11 +64,10 @@ cp -i ./defaults/* .
 
 ### Scripts
 
-The repository includes four BASH executable scripts:
-1. `dbinit` prepares the database for the bot. It must be run with `sudo` as part of the setup and should not be used again.
-2. `start` launches the bot and redirects the output (every posted message, some debug information, and errors) to `log.txt` and `errorlog.txt`, for later examination. If you experience issues please use the relevant contents of these two files to report them. Additionally, the process is detached and its PID is saved to `pid` file for tracking. The bot will not start if it is already running (per the presence of `pid`) and will inform you of the issue.
-3. `stop` reads the `pid` file created by `start` and kills the bot's process, deleting the file. If the file is not found it will inform you.
-4. `restart` simply executes `stop` and `start` consecutively. It is useful when pulling in an update and wanting to restart or to verify that there is no running instance when starting (for the latter reason `start` should rarely be used on its own).
+The repository includes three BASH executable scripts:
+1. `start` launches the bot and redirects the output (every posted message, some debug information, and errors) to `log.txt` and `errorlog.txt`, for later examination. If you experience issues please use the relevant contents of these two files to report them. Additionally, the process is detached and its PID is saved to `pid` file for tracking. The bot will not start if it is already running (per the presence of `pid`) and will inform you of the issue.
+2. `stop` reads the `pid` file created by `start` and kills the bot's process, deleting the file. If the file is not found it will inform you.
+3. `restart` simply executes `stop` and `start` consecutively. It is useful when pulling in an update and wanting to restart or to verify that there is no running instance when starting (for the latter reason `start` should rarely be used on its own).
 
 Assuming no errors, once `start` or `restart` execute, the bot should be up and ready for interaction. Make sure that the needed files are prepared, the auth key is correct, and check the `errorlog.txt` if problems arise.
 

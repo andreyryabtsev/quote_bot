@@ -22,6 +22,7 @@ function main() {
     });
 }
 
+// Iterate over all known users and ensures each has a row in the users table
 function initializeAllUsers(callback) {
     let userIDs = [];
     client.guilds.forEach(guild => {
@@ -34,6 +35,7 @@ function initializeAllUsers(callback) {
     db.addUsersIfNew(userIDs, callback);
 }
 
+// Attach event handlers to the needed Discord-emitted events; includes some simple logic for non-command responses
 function bindAPIEvents() {
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord account.");
@@ -98,6 +100,8 @@ const ACKNOWLEDGEMENT_EMOTE = "👍";
 
 // ------------------- FEATURES (more complex functionality) -----------------------
 
+// Process all logged events for the selected users and computes the number of days ago they were produced
+// Then, write results to ./chart/chartdata and invoke the python visualizer, sending image to channel.
 let produceChart = (channel, users, members, days) => {
     let millisecondsInDay = 86400000;
     db.allLogs(users.map(user => user.id), Date.now() - days * millisecondsInDay, results => {
@@ -125,6 +129,8 @@ let produceChart = (channel, users, members, days) => {
     });
 }
 
+// Maintain and update a map of words to the number of times they appear across all quotes
+// Essentially, a cache to optimize !quote computations
 let quoteGlossary = null;
 let populateQuoteGlossary = (content) => {
     if (!quoteGlossary) quoteGlossary = {};
@@ -141,11 +147,12 @@ let ensureQuoteGlossary = (quotes) => {
         });
     }
 }
-
 let sendQuote = (channel, content, author) => {
     channel.send(config["quote_response"].replace("{q}", content).replace("{u}", author));
 }
 
+// CFG: Compute and store the vocab lists from database, refreshing with a new query when over
+// 20 seconds has passed. Optimizes !speak which may need to reuse the lists very many times.
 let vocabCache, vocabUpdate;
 let parseCFG = (tk) => {
     return tk.replace(/<[^>]*>/g, function(token) {
@@ -180,6 +187,8 @@ let updateVocabCache = (i, callback) => {
         updateVocabCache(i + 1, callback);
     });
 }
+
+// CFG: Get a number of sentences by recursively iterating across n and saving each sentence to cache.
 let getCFGSentence = (callback) => {
     let punct = util.simpleRandom([".", ".", ".", "...", "!"]);
     updateVocabCache(0, () => {
@@ -201,10 +210,12 @@ let getCFGSentences = (n, callback, init) => {
     }
 }
 
+// Recursively iterate over 0..n-1 and add vote reactions sequentially.
 let addVoteReactions = (message, i, n) => {
     if (i == n) return;
     message.react(VOTE_REACTIONS[i]).then(r => addVoteReactions(message, i + 1, n));
 }
+// Parse the reactions to a vote and the vote object, constructing a text summary.
 let parseVoteMessage = (message, voteInfo) => {
     let longestOption = 0, totalVotes = 0;
     let votes = [];
@@ -214,7 +225,7 @@ let parseVoteMessage = (message, voteInfo) => {
             totalVotes += reaction.count - 1;
             let label = voteInfo.options[optionIndex];
             if (label.length > longestOption) longestOption = label.length;
-            votes.push({label: label, count: reaction.count - 1})
+            votes.push({label: label, count: reaction.count - 1});
         }
     });
     let output = "```\n" + voteInfo.content + ":\n";
@@ -226,6 +237,8 @@ let parseVoteMessage = (message, voteInfo) => {
     return output;
 }
 
+// Recursively iterate over the users who vetoed a quote.
+// Only call callback if all these users lack veto permissions.
 let checkPinOpposition = (users, i, callback) => {
     if (i == users.length) {
         callback();
@@ -238,6 +251,8 @@ let checkPinOpposition = (users, i, callback) => {
     }
 }
 
+// Check if a quote meets the pin threshold and has not already been added.
+// If so, add it and update the quote glossary.
 let pinQuote = (message) => {
     let count = message.reactions.get(QUOTE_PIN_EMOTE).count;
     if (count >= config["pin_threshold"]) {
@@ -252,6 +267,7 @@ let pinQuote = (message) => {
     }
 }
 
+// Potentially invoke the quote pinning process, checking for veto if attempted vetoes are found.
 let processMessageReaction = (event) => {
     if (event.emoji.name == QUOTE_PIN_EMOTE) {
         client.channels.get(event.channel_id).fetchMessage(event.message_id).then(message => {
