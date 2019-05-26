@@ -11,7 +11,6 @@ function main() {
     console.log("[BOOT] Database connection established.");
     config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
     auth = JSON.parse(fs.readFileSync("./auth.json", "utf8"));
-    util.initialize(config);
     configurableCommands();
     console.log("[BOOT] Loaded auth and config.");
     client = new discord.Client();
@@ -311,7 +310,7 @@ commands["chart"] = (message, text) => {
 }
 
 commands["clear"] = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, () => {
+    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["permission_denied_error"], () => {
         let count = parseInt(util.args(text)[0]);
         if (count <= 0 || count > 100) {
             message.channel.send(config["clear_error"]);
@@ -324,7 +323,7 @@ commands["clear"] = (message, text) => {
 }
 
 commands["delquotes"] = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, () => {
+    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["permission_denied_error"], () => {
         db.deleteQuotes(text, () => {
             message.react(ACKNOWLEDGEMENT_EMOTE);
         });
@@ -332,7 +331,7 @@ commands["delquotes"] = (message, text) => {
 }
 
 commands["f"] = (message) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, () => {
+    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["permission_denied_error"], () => {
         let member = message.mentions.members.first();
         if (member) {
             member.setVoiceChannel(member.guild.afkChannel);
@@ -360,7 +359,7 @@ commands["forget"] = (message, text) => {
 commands["help"] = (message) => {
     fs.readFile('./helpfile', 'utf8', (error, data) => {
         if (error) {
-            console.error(error);
+            util.logError(error);
             process.exit(1);
         }
         message.channel.send(data);
@@ -498,7 +497,7 @@ commands["teach"] = (message, text) => {
 }
 
 commands["undo"] = (message) => {
-    util.getPermission(db, message.author.id, "UNDO", message.channel, () => {
+    util.getPermission(db, message.author.id, "UNDO", message.channel, config["permission_denied_error"], () => {
         db.deleteLastLog(message.author.id, rowsAffected => {
             if (rowsAffected > 0) {
                 message.channel.send(config["undo_response"].replace("{u}", message.member.displayName));
