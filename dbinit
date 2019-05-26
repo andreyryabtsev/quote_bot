@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+if [ "$EUID" -ne 0 ]
+  then echo "please run with root privilleges"
+  exit
+fi
+sudo systemctl enable mysql
+sudo mysql -u root < initializeMySql.sql
+# sudo cp ./sqlconf /etc/mysql/my.cnf
