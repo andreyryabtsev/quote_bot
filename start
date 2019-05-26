@@ -2,6 +2,14 @@
 if [ -f "./pid" ]; then
     echo "bot appears to already be running. use ./stop, ./restart, or 'rm pid' if this is an error"
 else
+    mkdir -p ./oldlogs
+    date=`date +%d.%m.%Y.%H%M`
+    if [ -f "./log.txt" ]; then
+        mv ./log.txt "./oldlogs/"$date".log"
+    fi
+    if [ -f "./errorlog.txt" ]; then
+        mv ./errorlog.txt "./oldlogs/"$date".log"
+    fi
     node bot.js >> log.txt 2>errorlog.txt & echo $! > pid
     echo "bot started with PID "$!
 fi
