@@ -5,10 +5,10 @@ else
     mkdir -p ./oldlogs
     date=`date +%d.%m.%Y.%H%M`
     if [ -f "./log.txt" ]; then
-        mv ./log.txt "./oldlogs/"$date".log"
+        mv ./log.txt "./oldlogs/"$date".txt"
     fi
     if [ -f "./errorlog.txt" ]; then
-        mv ./errorlog.txt "./oldlogs/"$date".log"
+        mv ./errorlog.txt "./oldlogs/"$date".error.txt"
     fi
     node bot.js >> log.txt 2>errorlog.txt & echo $! > pid
     echo "bot started with PID "$!
