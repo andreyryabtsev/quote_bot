@@ -589,7 +589,7 @@ commands["when"] = (message, text) => {
 }
 
 let configurableCommands = () => {
-    commands[config["log_command"]] = (message, text) => {
+    commands[config["logs"]["log_command"]] = (message, text) => {
         db.addLog(message.author.id, Date.now(), text, () => {
             message.channel.send(config["logs"]["log_response"].replace("{u}", message.member.displayName));
         });
