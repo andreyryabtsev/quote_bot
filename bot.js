@@ -452,7 +452,7 @@ commands["quote"] = (message, text) => {
 
 commands["setname"] = (message, text) => {
     let user = message.mentions.users.first() || message.author,
-        newName = text.substring(text.indexOf(" ") + 1);
+        newName = message.mentions.users.first() ? text.substring(text.indexOf(" ") + 1) : text;
     db.updateNickname(user.id, newName, () => {
         message.react(ACKNOWLEDGEMENT_EMOTE);
     });
