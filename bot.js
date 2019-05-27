@@ -36,6 +36,7 @@ function initializeAllUsers(callback) {
 
 // Attach event handlers to the needed Discord-emitted events; includes some simple logic for non-command responses
 function bindAPIEvents() {
+    client.on('error', util.logError);
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord account.");
         initializeAllUsers(() => {
