@@ -197,9 +197,9 @@ let getCFGSentence = (callback) => {
         callback(final);
     });
 }
-let sentenceCache = [];
+let sentencesCache = [];
 let getCFGSentences = (n, callback, init) => {
-    if (init) sentenceCache = [];
+    if (init) sentencesCache = [];
     if (n == 0) {
         callback(sentencesCache);
     } else {
