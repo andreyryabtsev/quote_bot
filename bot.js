@@ -57,11 +57,11 @@ function bindAPIEvents() {
             }
         } else {
             let text = message.content.toLowerCase();
-            if (text.includes(config["bot_name"])) {
+            if (text.includes(config["general"]["bot_name"])) {
                 hearts = ["💚", "💜", "🖤", "💛", "💙", "❤️"];
-                let affections = ["love " + config["bot_name"], "love you " + config["bot_name"], "love u " + config["bot_name"]];
+                let affections = ["love " + config["bot_name"], "love you " + config["general"]["bot_name"], "love u " + config["general"]["bot_name"]];
                 if (affections.some(affection => text.includes(affection))) {
-                    message.channel.send(config["love_response"]);
+                    message.channel.send(config["general"]["love_response"]);
                 } else {
                     message.react(util.simpleRandom(hearts));
                 }
@@ -130,26 +130,19 @@ let produceChart = (channel, users, members, days) => {
     });
 }
 
-// Maintain and update a map of words to the number of times they appear across all quotes
-// Essentially, a cache to optimize !quote computations
-let quoteGlossary = null;
-let populateQuoteGlossary = (content) => {
-    ensureQuoteGlossary();
-    util.toWords(content).forEach(word => {
-        if (!(word in quoteGlossary)) quoteGlossary[word] = 0;
-        quoteGlossary[word]++;
-    });
-}
-let ensureQuoteGlossary = (quotes) => {
-    if (!quoteGlossary) {
-        quoteGlossary = {};
-        quotes.forEach(quote => {
-            populateQuoteGlossary(quote.content);
+// Parse quotes into popularity of each word
+let buildQuoteGlossary = (quotes) => {
+    quoteGlossary = {};
+    quotes.forEach(quote => {
+        util.toWords(quote.content).forEach(word => {
+            if (!(word in quoteGlossary)) quoteGlossary[word] = 0;
+            quoteGlossary[word]++;
         });
-    }
+    });
+    return quoteGlossary;
 }
 let sendQuote = (channel, content, author) => {
-    channel.send(config["quote_response"].replace("{q}", content).replace("{u}", author));
+    channel.send(config["quotes"]["format"].replace("{q}", content).replace("{u}", author));
 }
 
 // CFG: Compute and store the vocab lists from database, refreshing with a new query when over
@@ -256,11 +249,10 @@ let checkPinOpposition = (users, i, callback) => {
 // If so, add it and update the quote glossary.
 let pinQuote = (message) => {
     let count = message.reactions.get(QUOTE_PIN_EMOTE).count;
-    if (count >= config["pin_threshold"]) {
+    if (count >= config["quotes"]["pin_threshold"]) {
         db.filteredQuotes(message.content, results => {
             if (results.length == 0) {
                 db.addQuote(message.author.id, message.content, () => {
-                    populateQuoteGlossary(message.content);
                     message.react(ACKNOWLEDGEMENT_EMOTE);
                 });
             }
@@ -285,12 +277,11 @@ let processMessageReaction = (event) => {
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
 
 commands["addquote"] = (message, text) => {
-    if(!message.mentions.users.first()) {
-        message.channel.send(config["add_quote_error"]);
+    if (!message.mentions.users.first()) {
+        message.channel.send(config["quotes"]["add_error"]);
     } else {
         let content = text.substring(text.indexOf(" ") + 1);
         db.addQuote(message.mentions.users.first().id, content, () => {
-            populateQuoteGlossary(content);
             message.react(ACKNOWLEDGEMENT_EMOTE);
         });
     }
@@ -299,7 +290,7 @@ commands["addquote"] = (message, text) => {
 commands["chart"] = (message, text) => {
     let numDays = parseInt(util.args(text)[0]);
     if (!(numDays > 0 && numDays <= 365)) {
-        message.channel.send(config["chart_error"]);
+        message.channel.send(config["logs"]["chart_error"]);
     } else {
         let mentionUsers = message.mentions.users.array(), mentionMembers = message.mentions.members.array();
         if (mentionUsers.length == 0) {
@@ -311,20 +302,20 @@ commands["chart"] = (message, text) => {
 }
 
 commands["clear"] = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["permission_denied_error"], () => {
+    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
         let count = parseInt(util.args(text)[0]);
         if (count <= 0 || count > 100) {
-            message.channel.send(config["clear_error"]);
+            message.channel.send(config["clear"]["error"]);
         } else {
             message.channel.bulkDelete(count + 1).then(messages => {
-                message.channel.send(config["clear_response"].replace("{n}", count)).then(message => message.delete(2000));
+                message.channel.send(config["clear"]["response"].replace("{n}", count)).then(message => message.delete(2000));
             });
         }
     });
 }
 
 commands["delquotes"] = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["permission_denied_error"], () => {
+    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
         db.deleteQuotes(text, () => {
             message.react(ACKNOWLEDGEMENT_EMOTE);
         });
@@ -332,7 +323,7 @@ commands["delquotes"] = (message, text) => {
 }
 
 commands["f"] = (message) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["permission_denied_error"], () => {
+    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
         let member = message.mentions.members.first();
         if (member) {
             member.setVoiceChannel(member.guild.afkChannel);
@@ -344,12 +335,12 @@ commands["forget"] = (message, text) => {
     let args = util.args(text), pos = "<" + args[0] + ">";
     let typeID = PARTS_OF_SPEECH.indexOf(pos);
     if (args.length < 2 || typeID == -1) {
-        message.channel.send(config["forget_error"]);
+        message.channel.send(config["cfg"]["forget_error"]);
     } else {
         let vocabType = PARTS_OF_SPEECH.indexOf(pos);
         db.forgetVocab(vocabType, args[1], deletions => {
             if (deletions == 0) {
-                message.channel.send(config["forget_repeat_error"]);
+                message.channel.send(config["cfg"]["forget_missing_error"]);
             } else {
                 message.react(ACKNOWLEDGEMENT_EMOTE);
             }
@@ -371,19 +362,19 @@ commands["name"] = (message) => {
     let id = message.mentions.users.first() ? message.mentions.users.first().id : message.author.id;
     let displayName = message.mentions.members.first() ? message.mentions.members.first().displayName : message.member.displayName;
     db.quoteName(id, quoteName => {
-        if (!quoteName) message.channel.send(config["quote_name_error"]);
-        else message.channel.send(config["quote_name_response"].replace("{u}", displayName).replace("{n}", quoteName));
+        if (!quoteName) message.channel.send(config["quotes"]["name_error"]);
+        else message.channel.send(config["quotes"]["name_response"].replace("{u}", displayName).replace("{n}", quoteName));
     });
 }
 
 commands["numquotes"] = (message, text) => {
     db.filteredQuotes(text, quotes => {
-        message.channel.send(config["num_quotes"].replace("{n}", quotes.length));
+        message.channel.send(config["quotes"]["num_quotes"].replace("{n}", quotes.length));
     });
 }
 
 commands["ping"] = (message) => {
-    message.channel.send(config["ping_response"]);
+    message.channel.send(config["general"]["ping_response"]);
 }
 
 commands["quote"] = (message, text) => {
@@ -393,21 +384,21 @@ commands["quote"] = (message, text) => {
                 let quote = util.simpleRandom(quotes);
                 sendQuote(message.channel, quote.content, quote.nickname);
             } else {
-                message.channel.send(config["quote_error"]);
+                message.channel.send(config["quotes"]["quote_error"]);
                 return;
             }
         });
     } else {
-        let n = config["quote_params"]["relevant_message_count"],
-            e = config["quote_params"]["relevant_exponentiation"],
-            p = config["quote_params"]["relevant_probability"];
+        let n = config["quotes"]["relevancy_params"]["message_count"],
+            e = config["quotes"]["relevancy_params"]["exponentiation"],
+            p = config["quotes"]["relevancy_params"]["weight"];
         message.channel.fetchMessages({ limit: n * 10, before: message.id}).then(messages => {
             db.allQuotes(quotes => {
                 if (quotes.length == 0) {
-                    message.channel.send(config["quote_error"]);
+                    message.channel.send(config["quotes"]["quote_error"]);
                     return;
                 }
-                ensureQuoteGlossary(quotes);
+                let quoteGlossary = buildQuoteGlossary(quotes);
                 let recentGlossary = {};
                 messages = messages.array();
                 let count = 0;
@@ -482,12 +473,12 @@ commands["teach"] = (message, text) => {
     let args = util.args(text), pos = "<" + args[0] + ">";
     let typeID = PARTS_OF_SPEECH.indexOf(pos);
     if (args.length < 2 || typeID == -1) {
-        message.channel.send(config["teach_error"]);
+        message.channel.send(config["cfg"]["teach_error"]);
     } else {
         let word = text.substring(text.indexOf(" ") + 1);
         db.checkVocab(typeID, word, exists => {
             if (exists) {
-                message.channel.send(config["teach_repeat_error"]);
+                message.channel.send(config["cfg"]["teach_present_error"]);
             } else {
                 db.addVocab(typeID, word, () => {
                     message.react(ACKNOWLEDGEMENT_EMOTE);
@@ -498,12 +489,12 @@ commands["teach"] = (message, text) => {
 }
 
 commands["undo"] = (message) => {
-    util.getPermission(db, message.author.id, "UNDO", message.channel, config["permission_denied_error"], () => {
+    util.getPermission(db, message.author.id, "UNDO", message.channel, config["general"]["permission_denied_error"], () => {
         db.deleteLastLog(message.author.id, rowsAffected => {
             if (rowsAffected > 0) {
-                message.channel.send(config["undo_response"].replace("{u}", message.member.displayName));
+                message.channel.send(config["logs"]["undo_response"].replace("{u}", message.member.displayName));
             } else {
-                message.channel.send(config["undo_error"]);
+                message.channel.send(config["logs"]["undo_error"]);
             }
         });
     });
@@ -513,12 +504,12 @@ commands["vocab"] = (message, text) => {
     let args = util.args(text), pos = "<" + args[0] + ">";
     let typeID = PARTS_OF_SPEECH.indexOf(pos);
     if (args.length < 1 || typeID == -1 && args[0] != "all") {
-        message.channel.send(config["vocab_error"]);
+        message.channel.send(config["cfg"]["vocab_error"]);
     } else {
         if (args[1] == "count") {
             db.countVocab(typeID, count => {
                 if (args[0] == "all") args[0] = "word";
-                message.channel.send(config["vocab_count_response"].replace("{n}", count).replace("{t}", args[0]));
+                message.channel.send(config["cfg"]["vocab_count_response"].replace("{n}", count).replace("{t}", args[0]));
             });
         } else {
             db.fetchVocab(typeID, vocab => {
@@ -535,12 +526,12 @@ commands["vocab"] = (message, text) => {
 commands["vote"] = (message, text) => {
     let args = util.args(text);
     if (args.length < 3) {
-        message.channel.send(config["vote_error"]);
+        message.channel.send(config["vote"]["proposal_error"]);
         return;
     }
     let count = parseInt(args[0]), options = [];
     if (count <= 0 || count > 10 || args.length < count + 1) {
-        message.channel.send(config["vote_error"]);
+        message.channel.send(config["vote"]["proposal_error"]);
         return;
     }
 
@@ -550,7 +541,7 @@ commands["vote"] = (message, text) => {
         if (i > 0) voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
     }
     let voteName = args.slice(count + 1).join(" ");
-    let voteProposalString = config["vote_proposal"]
+    let voteProposalString = config["vote"]["proposal"]
         .replace("{u}", message.member.displayName)
         .replace("{n}", voteName)
         .replace("{v}", voteString);
@@ -564,9 +555,9 @@ commands["votestatus"] = (message, text) => {
     db.lastVote(text, vote => {
         if (!vote) {
             if (text) {
-                message.channel.send(config["vote_search_error"]);
+                message.channel.send(config["vote"]["search_error"]);
             } else {
-                message.channel.send(config["votes_empty_error"]);
+                message.channel.send(config["vote"]["search_error_blank"]);
             }
         } else {
             // Try to find correct channel, default to current one
@@ -574,7 +565,7 @@ commands["votestatus"] = (message, text) => {
             voteChannel.fetchMessage(vote.discord_message_id).then(voteMessage => {
                 message.channel.send(parseVoteMessage(voteMessage, vote));
             }).catch(error => {
-                message.channel.send(config["vote_corruption_error"]);
+                message.channel.send(config["vote"]["corruption_error"]);
             });
         }
     });
@@ -590,9 +581,9 @@ commands["when"] = (message, text) => {
     db.lastLog(id, (logInfo) => {
         if (logInfo) {
             let duration = util.formatDuration(Date.now() - logInfo.lastLog);
-            message.channel.send(config["when_response"].replace("{d}", duration).replace("{u}", nickname).replace("{s}", logInfo.signature));
+            message.channel.send(config["logs"]["when_response"].replace("{d}", duration).replace("{u}", nickname).replace("{s}", logInfo.signature));
         } else {
-            message.channel.send(config["when_error"].replace("{u}", nickname));
+            message.channel.send(config["logs"]["when_error"].replace("{u}", nickname));
         }
     });
 }
@@ -600,7 +591,7 @@ commands["when"] = (message, text) => {
 let configurableCommands = () => {
     commands[config["log_command"]] = (message, text) => {
         db.addLog(message.author.id, Date.now(), text, () => {
-            message.channel.send(config["log_response"].replace("{u}", message.member.displayName));
+            message.channel.send(config["logs"]["log_response"].replace("{u}", message.member.displayName));
         });
     }
 
