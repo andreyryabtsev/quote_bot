@@ -17,7 +17,7 @@ function main() {
     bindAPIEvents();
     client.login(auth.token).catch(error=>{
         util.logError(error);
-        process.exit(1);
+        util.fatalError();
     });
 }
 
@@ -360,9 +360,9 @@ commands["help"] = (message) => {
     fs.readFile('./helpfile', 'utf8', (error, data) => {
         if (error) {
             util.logError(error);
-            process.exit(1);
+        } else {
+            message.channel.send(data);
         }
-        message.channel.send(data);
     });
 }
 
