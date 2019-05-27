@@ -16,7 +16,7 @@ function main() {
     client = new discord.Client();
     bindAPIEvents();
     client.login(auth.token).catch(error=>{
-        console.error(error);
+        util.logError(error);
         process.exit(1);
     });
 }
@@ -116,9 +116,9 @@ let produceChart = (channel, users, members, days) => {
         }
         fs.writeFileSync("./chart/chartdata", chartfile, 'utf8');
         cp.exec("python3 ./chart/chartgen.py ./chart/", (error, stdout, stderr) => {
-            if (error) console.error("[chartgen] ERROR: " + error);
+            if (error) util.logError("[chartgen] ERROR: " + error);
             if (stdout) console.log("[chartgen] " + stdout);
-            if (stderr) console.error("[chartgen] " + stderr);
+            if (stderr) util.logError("[chartgen] " + stderr);
             channel.send({
                 files: [{
                     attachment: './chart/chart.png',
