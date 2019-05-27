@@ -474,7 +474,7 @@ commands["speak"] = (message, text) => {
             output += sentence + "\n";
         }
         message.channel.send(output);
-    });
+    }, false);
 }
 
 commands["teach"] = (message, text) => {
