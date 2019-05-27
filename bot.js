@@ -133,7 +133,7 @@ let produceChart = (channel, users, members, days) => {
 // Essentially, a cache to optimize !quote computations
 let quoteGlossary = null;
 let populateQuoteGlossary = (content) => {
-    if (!quoteGlossary) quoteGlossary = {};
+    ensureQuoteGlossary();
     util.toWords(content).forEach(word => {
         if (!(word in quoteGlossary)) quoteGlossary[word] = 0;
         quoteGlossary[word]++;
