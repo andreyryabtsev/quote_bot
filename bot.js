@@ -199,13 +199,13 @@ let getCFGSentence = (callback) => {
 }
 let sentencesCache = [];
 let getCFGSentences = (n, callback, init) => {
-    if (!init) sentenceCache = [];
+    if (init) sentenceCache = [];
     if (n == 0) {
         callback(sentencesCache);
     } else {
         getCFGSentence(sentence => {
             sentencesCache.push(sentence);
-            getCFGSentences(n - 1, callback, true);
+            getCFGSentences(n - 1, callback, false);
         });
     }
 }
@@ -474,7 +474,7 @@ commands["speak"] = (message, text) => {
             output += sentence + "\n";
         }
         message.channel.send(output);
-    }, false);
+    }, true);
 }
 
 commands["teach"] = (message, text) => {
