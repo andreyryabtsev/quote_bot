@@ -1,7 +1,6 @@
 log.txt
 errorlog.txt
 package-lock.json
-helpfile
 pid
 oldlogs/
 node_modules/

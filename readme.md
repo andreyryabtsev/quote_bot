@@ -1,7 +1,7 @@
 # Counter-Bot
 
 A multi-purpose Discord bot that tracks and recites quotes, lists, logs events and reports statistics of those events for each user, charts those events, generates primitive sentences from a malleable vocabulary, and much more.
-Consult the "!help" command for a relatively comprehensive list of command-invoked features. The printout of this command (in unprocessed form) is in `helpfile`
+Consult the "!help" command for a relatively comprehensive list of command-invoked features.
 
 ## Getting Started
 

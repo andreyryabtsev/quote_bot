@@ -48,5 +48,32 @@
         "forget_missing_error": "I never knew this word!",
         "part_of_speech_error": "Valid parts of speech are: {c}",
         "vocab_error": "Please supply a valid part of speech or \"all\"."
+    },
+    "help_items": {
+        "`!addquote <@mention> <quote>`": "attribute  `quote` to `@mention` (don't include quotation marks)",
+        "`!chart <days> [@mention @mention ...]`": "produce a visualization your logs for the last `days` days; optionally show logs by `@mention`(s) instead",
+        "*`!clear <count>`": "clear `count` of most recent messages in this channel",
+        "*`!delquotes <query>`": "delete all quotes matching `query`; be careful, may delete many at once!",
+        "*`!f <@mention>`": "move `@mention` to the AFK channel",
+        "`!forget <part_of_speech> <phrase>`": "delete `phrase` from the `part_of_speech` list, if it exists there",
+        "`!help`": "print this message",
+        "`!name [@mention]`": "show the quote attribution name of yourself or `@mention`",
+        "`!numquotes [query]`": "count the number of either all quotes or those matching `query`",
+        "`!ping`": "get a response from bot, mainly to ensure it is running",
+        "`!quote [query]`": "display a random quote matching `query`, or display any random quote with bias towards ones relevant to recent messages",
+        "`!setname [@mention] <name>`": "set your quote attribution name to `name`; optionally, set `@mention`'s name instead",
+        "`!signature <word>`": "set your one-word (can be emoji) conclusion to `!when` calls about you",
+        "`!speak [count]`": "produce a randomly generated sentence using learned vocabulary; optionally produce `count` sentences at once",
+        "`!teach <part_of_speech> <phrase>`": "add `phrase` to the `part_of_speech` list, if not already there",
+        "`!undo`": "permanently delete your most recent event log",
+        "`!vocab <part_of_speech|\"all\"> [\"count\"]`": "list all known phrases in `part_of_speech` list, or all known phrases if \"all\", splitting into multiple messages if needed; optionally shows just the count",
+        "`!vote <count> <opt1>...<optcount> <name>`": "initiate a vote on `name` with `count` options listed in `opt1` through `optcount`; votes are counted by reacting to the bot's reply",
+        "`!votestatus [query]`": "report the current results for the most recent vote; optionally use the most recent vote whose name matches `query` instead",
+        "`!when [@mention]`": "show your most recent event log with your custom signature; optionally show `@mention`'s log instead",
+        "`!{logs.log_command} [caption]`": "add an event log; optionally caption it with `caption`",
+        "**:pushpin: pinning**": "if {quotes.pin_threshold} users react with :pushpin: to a message, that message is added as a quote attributed to the message's author"
+    },
+    "help": {
+        "header": "The following commands/features are available. ***** indicates the caller must be known as admin by the bot. `<args>` are requrired arguments while `[args]` are optional."
     }
 }

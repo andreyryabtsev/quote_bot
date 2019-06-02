@@ -26,8 +26,9 @@ function loadConfig() {
 function main() {
     console.log("[BOOT] Database connection established.");
     loadConfig();
+    prepareConfigHelp();
     configurableCommands();
-    console.log("[BOOT] Loaded auth and config.");
+    console.log("[BOOT] Loaded and processed auth and config.");
     client = new discord.Client();
     bindAPIEvents();
     client.login(auth.token).catch(error=>{
@@ -47,6 +48,29 @@ function initializeAllUsers(callback) {
         }
     });
     db.addUsersIfNew(userIDs, callback);
+}
+
+// Once config has been loaded, parse the help_items object for references to other config properties
+function prepareConfigHelp() {
+    let parseValue = value => {
+        value = value.substring(1, value.length - 1);
+        let args = value.split(".");
+        let obj = config;
+        for (let i = 0; i < args.length; i++) {
+            if (!(args[i] in obj)) return "CONFIG_ERROR";
+            obj = obj[args[i]];
+        }
+        return obj;
+    };
+    let parseText = text => {
+        return text.replace(/{[^}]*}/g, parseValue);
+    }
+    for (let oldName in config["help_items"]) {
+        let newName = parseText(oldName);
+        let newValue = parseText(config["help_items"][oldName]);
+        delete config["help_items"][oldName];
+        config["help_items"][newName] = newValue;
+    }
 }
 
 // Attach event handlers to the needed Discord-emitted events; includes some simple logic for non-command responses
@@ -115,6 +139,16 @@ const QUOTE_PIN_EMOTE = "📌", ANTI_QUOTE_PIN_EMOTE = "👎";
 const ACKNOWLEDGEMENT_EMOTE = "👍";
 
 // ------------------- FEATURES (more complex functionality) -----------------------
+
+// Uses config to generate a help message for the bot functionality
+let generateHelp = () => {
+    let helpMessage = config["help"]["header"] + "\n";
+    let items = Object.keys(config["help_items"]).sort();
+    for (let item in items) {
+        helpMessage += item + " - " + config["help_items"][item];
+    }
+    return helpMessage;
+}
 
 // Process all logged events for the selected users and computes the number of days ago they were produced
 // Then, write results to ./chart/chartdata and invoke the python visualizer, sending image to channel.
@@ -364,13 +398,7 @@ commands["forget"] = (message, text) => {
 }
 
 commands["help"] = (message) => {
-    fs.readFile('./helpfile', 'utf8', (error, data) => {
-        if (error) {
-            util.logError(error);
-        } else {
-            message.channel.send(data);
-        }
-    });
+    message.channel.send(generateHelp());
 }
 
 commands["name"] = (message) => {
