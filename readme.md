@@ -55,12 +55,20 @@ cp -i ./defaults/* .
     * This JSON stores the authentication key provided to your bot account by discord for sign-in. Open this file and replace `YOUR_TOKEN_HERE` with your actual token.
 
 2. `config.json`
-    * This JSON contains the configuration of your bot, such as the text of error and success messages, as well as the text of certain commands and pre-defined responses. For instance, the default event log command can be seen in this snippet:
+    * This JSON contains modifications to the configuration of your bot, such as the text of error and success messages, as well as the text of certain commands and pre-defined responses. Mimic parts of the structure of `default_config.json` to change specific functionality. For instance, the default event log command can be seen in this snippet:
     ```json
     "log_command": "animal",
     "log_response": "Thank you {u}, I have logged your animal product usage."
     ```
-    So by default, you are ready to use the logging feature to track your path towards veganism, as an example. Additionally, `{u}` is a placeholder, in this case it is replaced by the logging user's current display name on the server. Adjust the config to your liking and use cases.
+    So by default, you are ready to use the logging feature to track your path towards veganism, as an example. Additionally, `{u}` is a placeholder, in this case it is replaced by the logging user's current display name on the server. If you would like to change the log command name and nothing else, you can edit your `config.json` to be:
+    ```json
+    {
+        "logs": {
+            "log_command": "log"
+        }
+    }
+    ```
+    Now, bot will respond to `!log` instead of to `!animal` for event-logging, but otherwise act no different.
 
 ### Scripts
 

@@ -1,0 +1,52 @@
+{
+    "general": {
+        "permission_denied_error": "You do not have permission to access this command!",
+        "bot_name": "counter bot",
+        "love_response": "Aww! :)",
+        "ping_response": "!pong"
+    },
+    "plain_responses": {},
+    "vote": {
+        "proposal": "{u} wants to vote on *{n}*\n{v}",
+        "proposal_error": "Please specify the number of options, list the options, and then name the vote!",
+        "search_error": "A vote by this name does not exist!",
+        "corruption_error": "The message representing this vote was deleted.",
+        "search_error_blank": "You have never created a vote!"
+    },
+    "logs": {
+        "log_command": "animal",
+        "log_response": "Thank you {u}, I have logged your animal product usage.",
+        "undo_response": "{u}, I removed your last log entry!",
+        "undo_error": "You have never used an animal product!",
+        "when_response": "It has been {d} since {u} has used animal products! {s}",
+        "when_error": "To my knowledge, {u} has never used an animal product. Commendable!",
+        "chart_error": "Please specify between 1 and 365 days as the day count."
+    },
+    "quotes": {
+        "name_error": "This user does not have a quote attribution name!",
+        "name_response": "{u}'s quote attribution name is {n}",
+        "add_error": "Please @mention someone and then write their new quote attribution name.",
+        "quote_error": "Sadly, no quotes are available.",
+        "format": "*\"{q}*\"\n                                        -{u}",
+        "num_quotes": "I found {n} quotes.",
+        "pin_threshold": 2,
+        "relevancy_params": {
+            "weight": 0.7,
+            "exponentiation": 2.2,
+            "message_count": 7
+        }
+    },
+    "clear": {
+        "error": "Please specify a number of messages to remove (between 0 and 100)",
+        "response": "I have cleared {n} messages for you."
+    },
+    "cfg": {
+        "vocab_count_response": "I know {n} {t}s.",
+        "teach_error": "Please specify a part of speech and a word.",
+        "teach_present_error": "I already knew this word!",
+        "forget_error": "Please specify a part of speech and a word.",
+        "forget_missing_error": "I never knew this word!",
+        "part_of_speech_error": "Valid parts of speech are: {c}",
+        "vocab_error": "Please supply a valid part of speech or \"all\"."
+    }
+}

@@ -7,10 +7,25 @@ db.initialize(main);
 
 var auth, config, client;
 var commands = {};
+function loadConfig() {
+    try {
+        auth = JSON.parse(fs.readFileSync("./auth.json", "utf8"));
+        config = JSON.parse(fs.readFileSync("./default_config.json", "utf8"));
+    } catch (e) {
+        util.logError("Unable to load auth and default config; please ensure /defaults has not been edited and you copied defaults/auth.json", e);
+        util.fatalError();
+    }
+    let custom;
+    try {
+        custom = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+    } catch (e) {
+        custom = {}
+    }
+    util.deepMerge(config, custom);
+}
 function main() {
     console.log("[BOOT] Database connection established.");
-    config = JSON.parse(fs.readFileSync("./config.json", "utf8"));
-    auth = JSON.parse(fs.readFileSync("./auth.json", "utf8"));
+    loadConfig();
     configurableCommands();
     console.log("[BOOT] Loaded auth and config.");
     client = new discord.Client();
