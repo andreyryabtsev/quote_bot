@@ -72,8 +72,9 @@ function prepareConfigHelp() {
         config["help_items"][newName] = newValue;
     }
     for (let plainResponse in config["plain_responses"]) {
-        if (!(plainResponse in config["help_items"])) {
-            config["help_items"]["`!" + plainResponse + "`"] = "respond with " + config["plain_responses"][plainResponse];
+        let helpKey = "`!" + plainResponse + "`";
+        if (!(helpKey in config["help_items"])) {
+            config["help_items"][helpKey] = "respond with " + config["plain_responses"][plainResponse];
         }
     }
 }
