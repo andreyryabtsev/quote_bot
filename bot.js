@@ -142,12 +142,12 @@ const ACKNOWLEDGEMENT_EMOTE = "👍";
 
 // Uses config to generate a help message for the bot functionality
 let generateHelp = () => {
-    let helpMessage = config["help"]["header"] + "\n";
+    let helpLines = [config["help"]["header"] + "\n"];
     let items = Object.keys(config["help_items"]).sort();
     for (let item of items) {
-        helpMessage += item + " - " + config["help_items"][item];
+        helpLines.push(item + " - " + config["help_items"][item] + "\n");
     }
-    return helpMessage;
+    return helpLines;
 }
 
 // Process all logged events for the selected users and computes the number of days ago they were produced
@@ -398,7 +398,8 @@ commands["forget"] = (message, text) => {
 }
 
 commands["help"] = (message) => {
-    message.channel.send(generateHelp());
+    let help = util.splitLongMessage(generateHelp());
+    for (let msg of help) message.channel.send(msg);
 }
 
 commands["name"] = (message) => {
@@ -557,7 +558,7 @@ commands["vocab"] = (message, text) => {
         } else {
             db.fetchVocab(typeID, vocab => {
                 vocab.sort();
-                for(let i = 0; i < vocab.length / VOCAB_WORDS_PER_MESSAGE; i++) {
+                for (let i = 0; i < vocab.length / VOCAB_WORDS_PER_MESSAGE; i++) {
                     let vocabSlice = vocab.slice(i * VOCAB_WORDS_PER_MESSAGE, (i + 1) * VOCAB_WORDS_PER_MESSAGE);
                     message.channel.send(vocabSlice.join(", "));
                 }
