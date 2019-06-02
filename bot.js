@@ -71,6 +71,11 @@ function prepareConfigHelp() {
         delete config["help_items"][oldName];
         config["help_items"][newName] = newValue;
     }
+    for (let plainResponse in config["plain_responses"]) {
+        if (!(plainResponse in config["help_items"])) {
+            config["help_items"]["`!" + plainResponse + "`"] = "respond with " + config["plain_responses"][plainResponse];
+        }
+    }
 }
 
 // Attach event handlers to the needed Discord-emitted events; includes some simple logic for non-command responses
