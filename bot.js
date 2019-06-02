@@ -144,7 +144,7 @@ const ACKNOWLEDGEMENT_EMOTE = "👍";
 let generateHelp = () => {
     let helpMessage = config["help"]["header"] + "\n";
     let items = Object.keys(config["help_items"]).sort();
-    for (let item in items) {
+    for (let item of items) {
         helpMessage += item + " - " + config["help_items"][item];
     }
     return helpMessage;
