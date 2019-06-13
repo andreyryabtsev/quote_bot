@@ -473,7 +473,9 @@ commands["quote"] = (message, text) => {
                 quotes = quotes.map(quote => {
                     let rank = 0.0;
                     util.toWords(quote.content).forEach(word => {
-                        rank += (recentGlossary[word] || 0.0) / quoteGlossary[word];
+                        if (quoteGlossary[word]) { //todo: figure out why there are quotes whose util.toWords is not a subset of quoteGlossary
+                            rank += (recentGlossary[word] || 0.0) / quoteGlossary[word];
+                        }
                     });
                     rank = Math.pow(rank, e);
                     weightSum += rank;
