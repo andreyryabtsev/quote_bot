@@ -395,7 +395,8 @@ commands["flipcoin"] = (message, text) => {
     }
     let heads = 0;
     for (let i = 0; i < numCoins; i++) if (Math.random() > 0.5) heads++;
-    if (numCoins == 1) message.channel.send(numCoins == 1 ? "Heads!" : "Tails!");
+    console.error(numCoins, heads);
+    if (numCoins == 1) message.channel.send(heads == 1 ? "Heads!" : "Tails!");
     else message.channel.send(config["etc"]["coin_output_many"].replace("{n}", heads));
 }
 
