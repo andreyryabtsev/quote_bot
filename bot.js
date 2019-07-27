@@ -386,7 +386,7 @@ commands["f"] = (message) => {
     });
 }
 
-commands["flipcoin"] = (message) => {
+commands["flipcoin"] = (message, text) => {
     let numCoins = parseInt(util.args(text)[0]);
     if (numCoins == NaN || numCoins < 1) numCoins = 1;
     if (numCoins > config["etc"]["max_coins"]) {
