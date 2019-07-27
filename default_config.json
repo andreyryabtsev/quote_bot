@@ -5,6 +5,12 @@
         "love_response": "Aww! :)",
         "ping_response": "!pong"
     },
+    "etc": {
+        "max_coins": 100,
+        "coin_error": "I can't flip that many coins!",
+        "coins_output_many": "I got {n} heads!",
+        "rng_error": "Not a valid upper bound!"
+    },
     "plain_responses": {},
     "vote": {
         "proposal": "{u} wants to vote on *{n}*\n{v}",
@@ -55,12 +61,14 @@
         "*`!clear <count>`": "clear `count` of most recent messages in this channel",
         "*`!delquotes <query>`": "delete all quotes matching `query`; be careful, may delete many at once!",
         "*`!f <@mention>`": "move `@mention` to the AFK channel",
+        "`!flipcoin [coins]`": "flip a coin either once or up to {etc.max_coins} times",
         "`!forget <part_of_speech> <phrase>`": "delete `phrase` from the `part_of_speech` list, if it exists there",
         "`!help`": "print this message",
         "`!name [@mention]`": "show the quote attribution name of yourself or `@mention`",
         "`!numquotes [query]`": "count the number of either all quotes or those matching `query`",
         "`!ping`": "get a response from bot, mainly to ensure it is running",
         "`!quote [query]`": "display a random quote matching `query`, or display any random quote with bias towards ones relevant to recent messages",
+        "`!rng <max>`": "randomly select a number between 0 (inclusive) and `max` (exclusive)",
         "`!setname [@mention] <name>`": "set your quote attribution name to `name`; optionally, set `@mention`'s name instead",
         "`!signature <word>`": "set your one-word (can be emoji) conclusion to `!when` calls about you",
         "`!speak [count]`": "produce a randomly generated sentence using learned vocabulary; optionally produce `count` sentences at once",
