@@ -8,7 +8,7 @@
     "etc": {
         "max_coins": 100,
         "coin_error": "I can't flip that many coins!",
-        "coins_output_many": "I got {n} heads!",
+        "coin_output_many": "I got {n} heads!",
         "rng_error": "Not a valid upper bound!"
     },
     "plain_responses": {},
