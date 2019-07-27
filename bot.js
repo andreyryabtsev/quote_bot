@@ -513,7 +513,7 @@ commands["rng"] = (message, text) => {
         message.channel.send(config["etc"]["rng_error"]);
         return;
     }
-    message.channel.send(Math.floor(Math.random() * max);
+    message.channel.send(Math.floor(Math.random() * max));
 }
 
 commands["setname"] = (message, text) => {
