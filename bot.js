@@ -1,4 +1,4 @@
-const db = require("./lib/db.js");
+﻿const db = require("./lib/db.js");
 const util = require("./lib/util.js");
 const discord = require("discord.js");
 const fs = require("fs");
@@ -102,7 +102,13 @@ function bindAPIEvents() {
             }
         } else {
             let text = message.content.toLowerCase();
-            if (text.includes(config["general"]["bot_name"])) {
+            if ((text.startsWith("bot") || text.startsWith(config["general"]["bot_name"]) && (text.substring(message.content.length - 1) == "?") {
+	        if (text.includes("percent") || text.includes("%")) {
+		    message.channel.send(Math.floor(Math.random() * 101) + "%!");
+		} else {
+		    message.channel.send((Math.random() < 0.5) ? "Yes!" : "No!");
+		}
+            } else if (text.includes(config["general"]["bot_name"])) {
                 hearts = ["💚", "💜", "🖤", "💛", "💙", "❤️"];
                 let affections = ["love " + config["bot_name"], "love you " + config["general"]["bot_name"], "love u " + config["general"]["bot_name"]];
                 if (affections.some(affection => text.includes(affection))) {
