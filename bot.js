@@ -102,7 +102,7 @@ function bindAPIEvents() {
             }
         } else {
             let text = message.content.toLowerCase();
-            if ((text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) && (text.endsWith("?"))) {
+            if ((text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) && text.endsWith("?")) {
                 if (text.includes("percent") || text.includes("%")) {
                     message.channel.send(Math.floor(Math.random() * 101) + "%!");
                 } else {
