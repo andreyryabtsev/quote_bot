@@ -1,7 +1,7 @@
-CREATE USER IF NOT EXISTS 'bot'@'localhost';
-GRANT ALL PRIVILEGES ON *.* TO 'bot'@'localhost';
-CREATE DATABASE IF NOT EXISTS bot CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS 'bot_staging'@'localhost';
+CREATE DATABASE IF NOT EXISTS bot_staging CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE bot;
+GRANT ALL PRIVILEGES ON bot_staging.* TO 'bot'@'localhost';
 CREATE TABLE IF NOT EXISTS users (
     id INT AUTO_INCREMENT PRIMARY KEY,
     discord_id VARCHAR(20) NOT NULL,
