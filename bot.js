@@ -375,7 +375,7 @@ let processFilter = (message) => {
 let scanReminders = () => {
     let toDelete = [], now = Date.now();
     for (let reminder of reminders) {
-        let expiry = reminder.start + reminder.seconds * 1000
+        let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
         if (expiry <= now) {
             // if late by more than double polling rate, likely offline
             let template = expiry <= now + REMINDER_POLLING_RATE * 2
