@@ -61,7 +61,7 @@ function initializeData(callback) {
     });
     db.addUsersIfNew(userIDs, () => {
         db.allReminders(remindersOutput => {
-
+            console.error(remindersOutput);
             callback();
         });
     });
