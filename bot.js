@@ -5,7 +5,8 @@ const fs = require("fs");
 const cp = require('child_process');
 db.initialize(main);
 
-var auth, config, client, filter;
+const REMINDER_POLLING_RATE = 5000;
+var auth, config, client, filter, reminders, reminderInterval;
 var commands = {};
 function loadConfig() {
     try {
@@ -49,7 +50,8 @@ function main() {
 }
 
 // Iterate over all known users and ensures each has a row in the users table
-function initializeAllUsers(callback) {
+// Also load in reminders
+function initializeData(callback) {
     let userIDs = [];
     client.guilds.forEach(guild => {
         if (guild.available) {
@@ -58,7 +60,15 @@ function initializeAllUsers(callback) {
             });
         }
     });
-    db.addUsersIfNew(userIDs, callback);
+    db.addUsersIfNew(userIDs, () => {
+        db.allReminders(remindersOutput => {
+            reminders = remindersOutput.map(r => {
+                return {id: r.id, channelID: r.channel_id, discordID: r.discord_id, start: r.invoked_on, seconds: r.delay_seconds, note: r.content};
+            });
+            reminderInterval = setInterval(scanReminders, REMINDER_POLLING_RATE);
+            callback();
+        });
+    });
 }
 
 // Once config has been loaded, parse the help_items object for references to other config properties
@@ -95,7 +105,7 @@ function bindAPIEvents() {
     client.on('error', util.logError);
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord account.");
-        initializeAllUsers(() => {
+        initializeData(() => {
             console.log("[BOOT] Initialized all data, ready.");
         });
     });
@@ -361,6 +371,27 @@ let processFilter = (message) => {
     return false;
 }
 
+// Scan for reminders frequently and post + delete expired ones
+let scanReminders = () => {
+    let toDelete = [], now = Date.now();
+    for (let i = reminders.length - 1; i >= 0; i--) {
+        let reminder = reminders[i];
+        let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
+        if (expiry <= now) {
+            // if late by more than double polling rate, likely offline
+            let template = expiry <= now + REMINDER_POLLING_RATE * 2000
+                ? config["reminders"]["late_reminder"]
+                : config["reminders"]["reminder"];
+            client.channels.get(reminder.channelID).send(template
+                .replace("{u}", "<@" + reminder.discordID + ">")
+                .replace("{n}", reminder.note));
+            reminders.splice(i, 1);
+            toDelete.push(reminder.id);
+        }
+    }
+    if (toDelete.length > 0) db.deleteReminders(toDelete, () => {});
+}
+
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
 
 commands["addquote"] = (message, text) => {
@@ -538,6 +569,23 @@ commands["quote"] = (message, text) => {
             });
         });
     }
+}
+
+commands["remindme"] = (message, text) => {
+    let seconds = parseInt(util.args(text)[0]),
+        note = text.substring(text.indexOf(" ") + 1),
+        now = Date.now();
+    db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
+        reminders.push({
+            id: results.insertId,
+            channelID: message.channel.id,
+            discordID: message.author.id,
+            start: now,
+            seconds: seconds,
+            note: note
+        });
+        message.react(ACKNOWLEDGEMENT_EMOTE);
+    });
 }
 
 commands["rng"] = (message, text) => {

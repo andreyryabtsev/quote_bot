@@ -50,3 +50,16 @@ CREATE TABLE IF NOT EXISTS cfg_terminal_tokens(
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+CREATE TABLE IF NOT EXISTS reminders(
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    invoked_on TEXT NOT NULL,
+    delay_seconds INT NOT NULL,
+    content TEXT NOT NULL,
+    channel_id TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_id INT NOT NULL,
+    FOREIGN KEY fk_cat(user_id)
+    REFERENCES users(id)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
