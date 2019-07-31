@@ -31,7 +31,7 @@ function loadFilter() {
         util.logError("No filter list found, filtering disabled.");
         filter = "";
     }
-    filter = filter.split("\n").map(raw => new RegExp(raw, "i"));
+    filter = filter.split("\n").filter(raw => /\S/.test(raw)).map(raw => new RegExp(raw, "i"));
 }
 function main() {
     console.log("[BOOT] Database connection established.");
