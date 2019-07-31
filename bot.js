@@ -381,7 +381,7 @@ let scanReminders = () => {
             let template = expiry <= now + REMINDER_POLLING_RATE * 2
                 ? config["reminders"]["late_reminder"]
                 : config["reminders"]["reminder"];
-            client.channels[reminder.channelID].send(template
+            client.channels.get(reminder.channelID).send(template
                 .replace("{u}", "<@" + reminder.discordID + ">")
                 .replace("{n}", reminder.note));
             toDelete.push(reminder.id);
