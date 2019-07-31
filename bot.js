@@ -374,16 +374,18 @@ let processFilter = (message) => {
 // Scan for reminders frequently and post + delete expired ones
 let scanReminders = () => {
     let toDelete = [], now = Date.now();
-    for (let reminder of reminders) {
+    for (let i = reminders.length - 1; i >= 0; i--) {
+        let reminder = reminders[i];
         let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
         if (expiry <= now) {
             // if late by more than double polling rate, likely offline
-            let template = expiry <= now + REMINDER_POLLING_RATE * 2
+            let template = expiry <= now + REMINDER_POLLING_RATE * 200
                 ? config["reminders"]["late_reminder"]
                 : config["reminders"]["reminder"];
             client.channels.get(reminder.channelID).send(template
                 .replace("{u}", "<@" + reminder.discordID + ">")
                 .replace("{n}", reminder.note));
+            reminders.splice(i, 1);
             toDelete.push(reminder.id);
         }
     }
