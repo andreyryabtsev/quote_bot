@@ -387,7 +387,7 @@ let scanReminders = () => {
             toDelete.push(reminder.id);
         }
     }
-    if (toDelete.length > 0) db.deleteReminders(toDelete);
+    if (toDelete.length > 0) db.deleteReminders(toDelete, () => {});
 }
 
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
