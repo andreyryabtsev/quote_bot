@@ -33,18 +33,6 @@ function loadFilter() {
     }
     filter = filter.split("\n").map(raw => new RegExp(raw, "i"));
 }
-// Match a message against the filter list; delete, reply, and return true iff matched.
-let processFilter = (message) => {
-    for (let regex of filter) {
-        if (regex.test(message.content)) {
-            message.delete().then(msg => {
-                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.author.displayName));
-            });
-            return true;
-        }
-    }
-    return false;
-}
 function main() {
     console.log("[BOOT] Database connection established.");
     loadConfig();
@@ -116,7 +104,7 @@ function bindAPIEvents() {
     });
     client.on('message', (message) => {
         console.log(message.author.username + ": " + message.content);
-        if processFilter(message) return;
+        if (processFilter(message)) return;
         if (message.content.startsWith("!")) {
             let argIndex = message.content.indexOf(" ");
             let cmd = argIndex == -1 ? message.content.substring(1) : message.content.substring(1, argIndex);
@@ -357,6 +345,19 @@ let processMessageReaction = (event) => {
             }
         });
     }
+}
+
+// Match a message against the filter list; delete, reply, and return true iff matched.
+let processFilter = (message) => {
+    for (let regex of filter) {
+        if (regex.test(message.content)) {
+            message.delete().then(msg => {
+                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.author.displayName));
+            });
+            return true;
+        }
+    }
+    return false;
 }
 
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
