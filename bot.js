@@ -552,7 +552,7 @@ commands["quote"] = (message, text) => {
 commands["remindme"] = (message, text) => {
     let seconds = parseInt(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1);
-    db.addReminder(message.author.id, note, seconds, () => {
+    db.addReminder(message.author.id, Date.now(), note, seconds, () => {
         message.react(ACKNOWLEDGEMENT_EMOTE);
     });
 }
