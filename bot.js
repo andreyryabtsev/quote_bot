@@ -26,7 +26,7 @@ function loadConfig() {
 }
 function loadFilter() {
     try {
-        filter = fs.readFileSync("./filter.txt");
+        filter = fs.readFileSync("./filter.txt", "utf8");
     } catch (e) {
         util.logError("No filter list found, filtering disabled.");
         filter = "";
