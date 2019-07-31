@@ -52,6 +52,7 @@ CREATE TABLE IF NOT EXISTS cfg_terminal_tokens(
 );
 CREATE TABLE IF NOT EXISTS reminders(
     id INT AUTO_INCREMENT PRIMARY KEY,
+    invoked_on TEXT NOT NULL,
     delay_seconds INT NOT NULL,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

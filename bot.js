@@ -61,7 +61,10 @@ function initializeData(callback) {
     });
     db.addUsersIfNew(userIDs, () => {
         db.allReminders(remindersOutput => {
-            console.error(remindersOutput);
+            reminders = remindersOutput.map(r => {
+                return {id: r.discord_id, start: r.invoked_on, seconds: r.delay_seconds, note: r.content};
+            });
+            console.log(reminders);
             callback();
         });
     });
