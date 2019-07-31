@@ -5,7 +5,7 @@ const fs = require("fs");
 const cp = require('child_process');
 db.initialize(main);
 
-var auth, config, client, filter;
+var auth, config, client, filter, reminders;
 var commands = {};
 function loadConfig() {
     try {
@@ -49,7 +49,8 @@ function main() {
 }
 
 // Iterate over all known users and ensures each has a row in the users table
-function initializeAllUsers(callback) {
+// Also load in reminders
+function initializeData(callback) {
     let userIDs = [];
     client.guilds.forEach(guild => {
         if (guild.available) {
@@ -58,7 +59,12 @@ function initializeAllUsers(callback) {
             });
         }
     });
-    db.addUsersIfNew(userIDs, callback);
+    db.addUsersIfNew(userIDs, () => {
+        db.allReminders(remindersOutput => {
+
+            callback();
+        });
+    });
 }
 
 // Once config has been loaded, parse the help_items object for references to other config properties
@@ -95,7 +101,7 @@ function bindAPIEvents() {
     client.on('error', util.logError);
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord account.");
-        initializeAllUsers(() => {
+        initializeData(() => {
             console.log("[BOOT] Initialized all data, ready.");
         });
     });
@@ -352,7 +358,8 @@ let processFilter = (message) => {
     for (let regex of filter) {
         if (regex.test(message.content)) {
             message.delete().then(msg => {
-                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.author.displayName));
+                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.member.displayName))
+                    .then(message => message.delete(config["etc"]["message_delete_wait"]));
             });
             return true;
         }
@@ -394,7 +401,8 @@ commands["clear"] = (message, text) => {
             message.channel.send(config["clear"]["error"]);
         } else {
             message.channel.bulkDelete(count + 1).then(messages => {
-                message.channel.send(config["clear"]["response"].replace("{n}", count)).then(message => message.delete(2000));
+                message.channel.send(config["clear"]["response"].replace("{n}", count))
+                .then(message => message.delete(config["etc"]["message_delete_wait"]));
             });
         }
     });
@@ -536,6 +544,14 @@ commands["quote"] = (message, text) => {
             });
         });
     }
+}
+
+commands["remindme"] = (message, text) => {
+    let seconds = parseInt(util.args(text)[0]),
+        note = text.substring(text.indexOf(" ") + 1);
+    db.addReminder(message.author.id, note, seconds, () => {
+        message.react(ACKNOWLEDGEMENT_EMOTE);
+    });
 }
 
 commands["rng"] = (message, text) => {

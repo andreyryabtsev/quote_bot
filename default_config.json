@@ -7,6 +7,7 @@
     },
     "etc": {
         "max_coins": 100,
+        "message_delete_wait": 2500,
         "coin_error": "I can't flip that many coins!",
         "coin_output_many": "I got {n} heads!",
         "rng_error": "Not a valid upper bound!",
