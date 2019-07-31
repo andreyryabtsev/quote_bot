@@ -9,7 +9,8 @@
         "max_coins": 100,
         "coin_error": "I can't flip that many coins!",
         "coin_output_many": "I got {n} heads!",
-        "rng_error": "Not a valid upper bound!"
+        "rng_error": "Not a valid upper bound!",
+        "filter_reply": "{u}, your message contained content disabled on this server and has been removed."
     },
     "plain_responses": {},
     "vote": {

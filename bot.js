@@ -5,30 +5,41 @@ const fs = require("fs");
 const cp = require('child_process');
 db.initialize(main);
 
-var auth, config, client;
+var auth, config, client, filter;
 var commands = {};
 function loadConfig() {
     try {
         auth = JSON.parse(fs.readFileSync("./auth.json", "utf8"));
         config = JSON.parse(fs.readFileSync("./default_config.json", "utf8"));
     } catch (e) {
-        util.logError("Unable to load auth and default config; please ensure /defaults has not been edited and you copied defaults/auth.json", e);
+        util.logError("Unable to load auth and default config; please ensure defaults have not been edited and you copied defaults/auth.json", e);
         util.fatalError();
     }
     let custom;
     try {
         custom = JSON.parse(fs.readFileSync("./config.json", "utf8"));
     } catch (e) {
+        util.logError("Custom config missing or malformatted, proceeding with default.");
         custom = {}
     }
     util.deepMerge(config, custom);
 }
+function loadFilter() {
+    try {
+        filter = fs.readFileSync("./filter.txt");
+    } catch (e) {
+        util.logError("No filter list found, filtering disabled.");
+        filter = "";
+    }
+    filter = filter.split("\n").map(raw => new RegExp(raw, "i"));
+}
 function main() {
     console.log("[BOOT] Database connection established.");
     loadConfig();
+    loadFilter();
     prepareConfigHelp();
     configurableCommands();
-    console.log("[BOOT] Loaded and processed auth and config.");
+    console.log("[BOOT] Loaded and processed auth, filter and config.");
     client = new discord.Client();
     bindAPIEvents();
     client.login(auth.token).catch(error=>{
@@ -93,6 +104,7 @@ function bindAPIEvents() {
     });
     client.on('message', (message) => {
         console.log(message.author.username + ": " + message.content);
+        if processFilter(message) return;
         if (message.content.startsWith("!")) {
             let argIndex = message.content.indexOf(" ");
             let cmd = argIndex == -1 ? message.content.substring(1) : message.content.substring(1, argIndex);
@@ -333,6 +345,19 @@ let processMessageReaction = (event) => {
             }
         });
     }
+}
+
+// Match a message against the filter list; delete, reply, and return true iff matched.
+let processFilter = (message) => {
+    for (let regex of filter) {
+        if (regex.test(message.content)) {
+            message.delete().then(msg => {
+                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.author.displayName));
+            });
+            return true;
+        }
+    }
+    return false;
 }
 
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
