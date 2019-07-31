@@ -352,7 +352,8 @@ let processFilter = (message) => {
     for (let regex of filter) {
         if (regex.test(message.content)) {
             message.delete().then(msg => {
-                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.author.displayName));
+                message.channel.send(config["etc"]["filter_reply"].replace("{u}", message.member.displayName))
+                    .then(message => message.delete(config["etc"]["message_delete_wait"]));
             });
             return true;
         }
@@ -394,7 +395,8 @@ commands["clear"] = (message, text) => {
             message.channel.send(config["clear"]["error"]);
         } else {
             message.channel.bulkDelete(count + 1).then(messages => {
-                message.channel.send(config["clear"]["response"].replace("{n}", count)).then(message => message.delete(2000));
+                message.channel.send(config["clear"]["response"].replace("{n}", count))
+                .then(message => message.delete(config["etc"]["message_delete_wait"]));
             });
         }
     });
