@@ -5,7 +5,8 @@ const fs = require("fs");
 const cp = require('child_process');
 db.initialize(main);
 
-var auth, config, client, filter, reminders;
+const REMINDER_POLLING_RATE = 5000;
+var auth, config, client, filter, reminders, reminderInterval;
 var commands = {};
 function loadConfig() {
     try {
@@ -62,9 +63,9 @@ function initializeData(callback) {
     db.addUsersIfNew(userIDs, () => {
         db.allReminders(remindersOutput => {
             reminders = remindersOutput.map(r => {
-                return {id: r.discord_id, start: r.invoked_on, seconds: r.delay_seconds, note: r.content};
+                return {id: r.id, channelID: r.channel_id, discordId: r.discord_id, start: r.invoked_on, seconds: r.delay_seconds, note: r.content};
             });
-            console.log(reminders);
+            reminderInterval = setInterval(scanReminders, REMINDER_POLLING_RATE);
             callback();
         });
     });
@@ -370,6 +371,25 @@ let processFilter = (message) => {
     return false;
 }
 
+// Scan for reminders frequently and post + delete expired ones
+let scanReminders = () => {
+    let toDelete = [], now = Date.now();
+    for (let reminder of reminders) {
+        let expiry = reminder.start + reminder.seconds * 1000
+        if (expiry <= now) {
+            // if late by more than double polling rate, likely offline
+            let template = expiry <= now + REMINDER_POLLING_RATE * 2
+                ? config["reminders"]["late_reminder"]
+                : config["reminders"]["reminder"];
+            client.channels[reminder.channelID].send(template
+                .replace("{u}", "<@" + reminder.discordID + ">")
+                .replace("{n}", reminder.note));
+            toDelete.push(reminder.id);
+        }
+    }
+    db.deleteReminders(toDelete);
+}
+
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
 
 commands["addquote"] = (message, text) => {
@@ -552,7 +572,8 @@ commands["quote"] = (message, text) => {
 commands["remindme"] = (message, text) => {
     let seconds = parseInt(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1);
-    db.addReminder(message.author.id, Date.now(), note, seconds, () => {
+    db.addReminder(message.author.id, Date.now(), note, seconds, (results) => {
+        console.log("REMINDER COMMITTED TO DB: ", results);
         message.react(ACKNOWLEDGEMENT_EMOTE);
     });
 }

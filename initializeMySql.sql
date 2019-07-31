@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS reminders(
     invoked_on TEXT NOT NULL,
     delay_seconds INT NOT NULL,
     content TEXT NOT NULL,
+    channel_id TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INT NOT NULL,
     FOREIGN KEY fk_cat(user_id)
