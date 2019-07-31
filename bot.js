@@ -63,7 +63,7 @@ function initializeData(callback) {
     db.addUsersIfNew(userIDs, () => {
         db.allReminders(remindersOutput => {
             reminders = remindersOutput.map(r => {
-                return {id: r.id, channelID: r.channel_id, discordId: r.discord_id, start: r.invoked_on, seconds: r.delay_seconds, note: r.content};
+                return {id: r.id, channelID: r.channel_id, discordID: r.discord_id, start: r.invoked_on, seconds: r.delay_seconds, note: r.content};
             });
             reminderInterval = setInterval(scanReminders, REMINDER_POLLING_RATE);
             callback();
@@ -571,9 +571,17 @@ commands["quote"] = (message, text) => {
 
 commands["remindme"] = (message, text) => {
     let seconds = parseInt(util.args(text)[0]),
-        note = text.substring(text.indexOf(" ") + 1);
-    db.addReminder(message.author.id, Date.now(), note, seconds, (results) => {
-        console.log("REMINDER COMMITTED TO DB: ", results);
+        note = text.substring(text.indexOf(" ") + 1),
+        now = Date.now();
+    db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
+        reminders.push({
+            id: results.insertId,
+            channelID: message.channel.id,
+            discordID: message.author.id,
+            start: now,
+            seconds: seconds,
+            note: note
+        });
         message.react(ACKNOWLEDGEMENT_EMOTE);
     });
 }
