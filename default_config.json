@@ -31,6 +31,7 @@
         "chart_error": "Please specify between 1 and 365 days as the day count."
     },
     "quotes": {
+        "author_error": "Tag someone to get a quote by them!",
         "name_error": "This user does not have a quote attribution name!",
         "name_response": "{u}'s quote attribution name is {n}",
         "add_error": "Please @mention someone and then write their new quote attribution name.",
@@ -74,6 +75,7 @@
         "`!numquotes [query]`": "count the number of either all quotes or those matching `query`",
         "`!ping`": "get a response from bot, mainly to ensure it is running",
         "`!quote [query]`": "display a random quote matching `query`, or display any random quote with bias towards ones relevant to recent messages",
+        "`!quoteby <@mention>`": "display a random quote by @mention",
         "`!rng <max>`": "randomly select a number between 1 and `max`",
         "`!setname [@mention] <name>`": "set your quote attribution name to `name`; optionally, set `@mention`'s name instead",
         "`!signature <word>`": "set your one-word (can be emoji) conclusion to `!when` calls about you",
