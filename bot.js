@@ -379,7 +379,11 @@ let scanReminders = () => {
         let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
         if (expiry <= now) {
             // if late by more than double polling rate, likely offline
+<<<<<<< HEAD
             let template = expiry <= now + REMINDER_POLLING_RATE * 2000
+=======
+            let template = expiry <= now - REMINDER_POLLING_RATE * 2000
+>>>>>>> quoteby
                 ? config["reminders"]["late_reminder"]
                 : config["reminders"]["reminder"];
             client.channels.get(reminder.channelID).send(template
@@ -569,6 +573,23 @@ commands["quote"] = (message, text) => {
             });
         });
     }
+}
+
+commands["quoteby"] = (message, text) => {
+    let user = message.mentions.users.first();
+    if (!user) {
+        message.channel.send(config["quotes"]["author_error"]);
+        return;
+    }
+    db.authoredQuotes(user.id, quotes => {
+        if (quotes.length > 0) {
+            let quote = util.simpleRandom(quotes);
+            sendQuote(message.channel, quote.content, quote.nickname);
+        } else {
+            message.channel.send(config["quotes"]["quote_error"]);
+            return;
+        }
+    });
 }
 
 commands["remindme"] = (message, text) => {
