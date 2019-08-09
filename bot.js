@@ -526,7 +526,7 @@ commands["quote"] = (message, text) => {
                     return;
                 }
                 let minTime = Math.min(quotes.map(quote => {
-                    return (quote.called_at == NULL) ? Infinity : quote.called_at;
+                    return !parseInt(quote.called_at) ? Infinity : parseInt(quote.called_at);
                 }));
                 let quoteGlossary = buildQuoteGlossary(quotes);
                 let recentGlossary = {};
@@ -557,7 +557,7 @@ commands["quote"] = (message, text) => {
                             rank += (recentGlossary[word] || 0.0) / quoteGlossary[word];
                         }
                     });
-                    timeRatio = (quote.called_at == NULL) ? 1 : ((Date.now() - quote.called_at) / (Date.now() - minTime));
+                    timeRatio = !parseInt(quote.called_at) ? 1 : ((Date.now() - parseInt(quote.called_at)) / (Date.now() - minTime));
                     rank = timeRatio * Math.pow(rank, e);
                     weightSum += rank;
                     return {value: quote, weight: rank};
