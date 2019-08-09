@@ -399,7 +399,7 @@ commands["addquote"] = (message, text) => {
         message.channel.send(config["quotes"]["add_error"]);
     } else {
         let content = text.substring(text.indexOf(" ") + 1);
-        db.addQuote(message.mentions.users.first().id, content, () => {
+        db.addQuote(message.mentions.users.first().id, Date.now(), content, () => {
             message.react(ACKNOWLEDGEMENT_EMOTE);
         });
     }
@@ -525,11 +525,14 @@ commands["quote"] = (message, text) => {
                     message.channel.send(config["quotes"]["quote_error"]);
                     return;
                 }
+                let minTime = Math.min(quotes.map(quote => {
+                    return (quote.called_at == NULL) ? Infinity : quote.called_at;
+                }));
                 let quoteGlossary = buildQuoteGlossary(quotes);
                 let recentGlossary = {};
                 messages = messages.array();
                 let count = 0;
-                for (let i = 0; i < n; i++) {
+                for (let i = 0; i < n*10; i++) {
                     if (!messages[i].author.bot && !messages[i].content.startsWith("!")) {
                         let words = util.toWords(messages[i].content);
                         if (words.length > 1) {
@@ -554,7 +557,8 @@ commands["quote"] = (message, text) => {
                             rank += (recentGlossary[word] || 0.0) / quoteGlossary[word];
                         }
                     });
-                    rank = Math.pow(rank, e);
+                    timeRatio = (quote.called_at == NULL) ? 1 : ((Date.now() - quote.called_at) / (Date.now() - minTime));
+                    rank = timeRatio * Math.pow(rank, e);
                     weightSum += rank;
                     return {value: quote, weight: rank};
                 }).map(quote => {
