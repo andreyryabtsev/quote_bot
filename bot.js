@@ -525,7 +525,7 @@ commands["quote"] = (message, text) => {
                     message.channel.send(config["quotes"]["quote_error"]);
                     return;
                 }
-                let minTime = Math.min(quotes.map(quote => {
+                let minTime = Math.min(...quotes.map(quote => {
                     return !parseInt(quote.called_at) ? Infinity : parseInt(quote.called_at);
                 }));
                 let quoteGlossary = buildQuoteGlossary(quotes);
@@ -567,7 +567,7 @@ commands["quote"] = (message, text) => {
                 });
 
                 quotes.sort((a,b) => b.weight - a.weight); // sort and report quotes for debug purposes
-                for (let i = 0; i < 5; i++) console.log("[relevant_quotes]: " + quotes[i].value.content + ": " + quotes[i].weight);
+                for (let i = 0; i < Math.min(5, quotes.length); i++) console.log("[relevant_quotes]: " + quotes[i].value.content + ": " + quotes[i].weight);
                 let quote = util.weightedRandom(quotes);
                 sendQuote(message.channel, quote.content, quote.nickname);
             });
