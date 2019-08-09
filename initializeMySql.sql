@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS quotes(
     id INT AUTO_INCREMENT PRIMARY KEY,
     content TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    called_at TEXT,
     user_id INT NOT NULL,
     FOREIGN KEY fk_cat(user_id)
     REFERENCES users(id)
