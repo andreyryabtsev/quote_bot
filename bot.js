@@ -226,7 +226,6 @@ let buildQuoteGlossary = (quotes) => {
 }
 let sendQuote = (channel, content, author) => {
     channel.send(config["quotes"]["format"].replace("{q}", content).replace("{u}", author));
-    db.updateQuote(content, Date.now());
 }
 
 // CFG: Compute and store the vocab lists from database, refreshing with a new query when over
@@ -380,7 +379,7 @@ let scanReminders = () => {
         let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
         if (expiry <= now) {
             // if late by more than double polling rate, likely offline
-            let template = expiry <= now - REMINDER_POLLING_RATE * 2000
+            let template = expiry <= now + REMINDER_POLLING_RATE * 2000
                 ? config["reminders"]["late_reminder"]
                 : config["reminders"]["reminder"];
             client.channels.get(reminder.channelID).send(template
@@ -533,7 +532,7 @@ commands["quote"] = (message, text) => {
                 let recentGlossary = {};
                 messages = messages.array();
                 let count = 0;
-                for (let i = 0; i < n * 10; i++) {
+                for (let i = 0; i < n*10; i++) {
                     if (!messages[i].author.bot && !messages[i].content.startsWith("!")) {
                         let words = util.toWords(messages[i].content);
                         if (words.length > 1) {
@@ -597,6 +596,10 @@ commands["remindme"] = (message, text) => {
     let seconds = parseInt(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1),
         now = Date.now();
+    if (!seconds) {
+        message.channel.send(config["etc"]["remindme_error"]);
+        return;
+    }
     db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
         reminders.push({
             id: results.insertId,
