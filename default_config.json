@@ -48,6 +48,7 @@
     "reminders": {
         "reminder": "{u}, you asked me to remind you: {n}",
         "late_reminder": "{u}, I was offline but you asked me to remind you: {n}"
+        "format_error": "Invalid time format!"
     },
     "clear": {
         "error": "Please specify a number of messages to remove (between 0 and 100)",

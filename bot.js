@@ -594,20 +594,24 @@ commands["quoteby"] = (message, text) => {
 }
 
 commands["remindme"] = (message, text) => {
-    let seconds = parseInt(util.args(text)[0]),
+    let seconds = util.timeToSecs(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1),
         now = Date.now();
-    db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
-        reminders.push({
-            id: results.insertId,
-            channelID: message.channel.id,
-            discordID: message.author.id,
-            start: now,
-            seconds: seconds,
-            note: note
+    if (seconds == -1) {
+        message.channel.send(config["reminder"]["format_error"]);
+    } else {
+        db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
+            reminders.push({
+                id: results.insertId,
+                channelID: message.channel.id,
+                discordID: message.author.id,
+                start: now,
+                seconds: seconds,
+                note: note
+            });
+            message.react(ACKNOWLEDGEMENT_EMOTE);
         });
-        message.react(ACKNOWLEDGEMENT_EMOTE);
-    });
+    }
 }
 
 commands["rng"] = (message, text) => {
