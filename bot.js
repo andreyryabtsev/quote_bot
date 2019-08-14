@@ -597,7 +597,7 @@ commands["remindme"] = (message, text) => {
     let seconds = util.timeToSecs(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1),
         now = Date.now();
-    if (!seconds || seconds == -1) {
+    if (!seconds === null) {
         message.channel.send(config["reminders"]["format_error"]);
         return;
     }
