@@ -226,6 +226,7 @@ let buildQuoteGlossary = (quotes) => {
 }
 let sendQuote = (channel, content, author) => {
     channel.send(config["quotes"]["format"].replace("{q}", content).replace("{u}", author));
+    db.updateQuote(content, Date.now());
 }
 
 // CFG: Compute and store the vocab lists from database, refreshing with a new query when over
@@ -593,24 +594,25 @@ commands["quoteby"] = (message, text) => {
 }
 
 commands["remindme"] = (message, text) => {
-    let seconds = parseInt(util.args(text)[0]),
+    let seconds = util.timeToSecs(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1),
         now = Date.now();
-    if (!seconds) {
-        message.channel.send(config["etc"]["remindme_error"]);
-        return;
-    }
-    db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
-        reminders.push({
-            id: results.insertId,
-            channelID: message.channel.id,
-            discordID: message.author.id,
-            start: now,
-            seconds: seconds,
-            note: note
+    if (note === text) note = "";
+    if (seconds === null) {
+        message.channel.send(config["reminders"]["format_error"]);
+    } else {
+        db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
+            reminders.push({
+                id: results.insertId,
+                channelID: message.channel.id,
+                discordID: message.author.id,
+                start: now,
+                seconds: seconds,
+                note: note
+            });
+            message.react(ACKNOWLEDGEMENT_EMOTE);
         });
-        message.react(ACKNOWLEDGEMENT_EMOTE);
-    });
+    }
 }
 
 commands["rng"] = (message, text) => {
