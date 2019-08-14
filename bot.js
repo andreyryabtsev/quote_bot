@@ -611,7 +611,7 @@ commands["remindme"] = (message, text) => {
             note: note
         });
         message.react(ACKNOWLEDGEMENT_EMOTE);
-    }
+    });
 }
 
 commands["rng"] = (message, text) => {
