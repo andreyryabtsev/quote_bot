@@ -226,6 +226,7 @@ let buildQuoteGlossary = (quotes) => {
 }
 let sendQuote = (channel, content, author) => {
     channel.send(config["quotes"]["format"].replace("{q}", content).replace("{u}", author));
+    db.updateQuote(content, Date.now());
 }
 
 // CFG: Compute and store the vocab lists from database, refreshing with a new query when over
@@ -593,11 +594,11 @@ commands["quoteby"] = (message, text) => {
 }
 
 commands["remindme"] = (message, text) => {
-    let seconds = parseInt(util.args(text)[0]),
+    let seconds = util.timeToSecs(util.args(text)[0]),
         note = text.substring(text.indexOf(" ") + 1),
         now = Date.now();
-    if (!seconds) {
-        message.channel.send(config["etc"]["remindme_error"]);
+    if (!seconds || seconds == -1) {
+        message.channel.send(config["reminder"]["format_error"]);
         return;
     }
     db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
@@ -610,7 +611,7 @@ commands["remindme"] = (message, text) => {
             note: note
         });
         message.react(ACKNOWLEDGEMENT_EMOTE);
-    });
+    }
 }
 
 commands["rng"] = (message, text) => {
