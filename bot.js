@@ -533,7 +533,7 @@ commands["quote"] = (message, text) => {
                 let recentGlossary = {};
                 messages = messages.array();
                 let count = 0;
-                for (let i = 0; i < n * 10; i++) {
+                for (let i = 0; i < n*10; i++) {
                     if (!messages[i].author.bot && !messages[i].content.startsWith("!")) {
                         let words = util.toWords(messages[i].content);
                         if (words.length > 1) {
