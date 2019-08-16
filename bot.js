@@ -127,8 +127,8 @@ function bindAPIEvents() {
             if ((text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) && text.endsWith("?")) {
                 if (text.includes("percent") || text.includes("%")) {
                     message.channel.send(Math.floor(Math.random() * 101) + "%!");
-                } else if(input.includes("choose") && input.includes("or")) { //if asked to choose between items of a list, returns a random answer
-                    let choices = input.split(", ");
+                } else if (text.includes("choose") && text.includes("or")) { //if asked to choose between items of a list, returns a random answer
+                    let choices = text.split(", ");
                     let results = [];
                     choices.forEach(function(word) {
                         if (word != "bot") {
