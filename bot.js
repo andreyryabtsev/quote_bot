@@ -612,7 +612,9 @@ commands["reminders"] = (message) => {
             message.channel.send(config["reminders"]["output_empty"]);
         } else {
             let output = "```";
-            let title = config["reminders"]["output_title"];
+            let title = config["reminders"]["output_title"]
+                .replace("{n}", reminders.length)
+                .replace("{p}", reminders.length != 1);
             output += title ? title + "\n" : "";
             for (let reminder of reminders) {
                 let alarmTime = parseInt(reminder.invoked_on) + reminder.delay_seconds * 1000;
