@@ -602,7 +602,7 @@ commands["reminders"] = (message) => {
             let output = "```";
             let title = config["reminders"]["output_title"]
                 .replace("{n}", reminders.length)
-                .replace("{p}", reminders.length != 1);
+                .replace("{p}", reminders.length != 1 ? "s" : "");
             output += title ? title + "\n" : "";
             for (let reminder of reminders) {
                 let alarmTime = parseInt(reminder.invoked_on) + reminder.delay_seconds * 1000;
