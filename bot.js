@@ -599,7 +599,7 @@ commands["reminders"] = (message) => {
         if (reminders.length == 0) {
             message.channel.send(config["reminders"]["output_empty"]);
         } else {
-            reminders = reminds.filter(r => r.discord_id == dicordID);
+            reminders = reminders.filter(r => r.discord_id == dicordID);
             let output = "```";
             let title = config["reminders"]["output_title"]
                 .replace("{n}", reminders.length)
