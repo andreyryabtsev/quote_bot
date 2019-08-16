@@ -348,7 +348,7 @@ let pinQuote = (message) => {
     if (count >= config["quotes"]["pin_threshold"]) {
         db.filteredQuotes(message.content, results => {
             if (results.length == 0) {
-                db.addQuote(message.author.id, message.content, () => {
+                db.addQuote(message.author.id, Date.now(), message.content, () => {
                     message.react(ACKNOWLEDGEMENT_EMOTE);
                 });
             }
