@@ -599,6 +599,7 @@ commands["reminders"] = (message) => {
         if (reminders.length == 0) {
             message.channel.send(config["reminders"]["output_empty"]);
         } else {
+            reminders = reminds.filter(r => r.discord_id == dicordID);
             let output = "```";
             let title = config["reminders"]["output_title"]
                 .replace("{n}", reminders.length)
@@ -607,12 +608,10 @@ commands["reminders"] = (message) => {
             for (let reminder of reminders) {
                 let alarmTime = parseInt(reminder.invoked_on) + reminder.delay_seconds * 1000;
                 let duration = util.formatDuration(alarmTime - Date.now());
-                if (reminder.discord_id == discordID) { // print only the reminders belonging to caller
-                    output += config["reminders"]["output_row"]
-                        .replace("{d}", duration)
-                        .replace("{n}", reminder.content)
-                        + "\n";
-                }
+                output += config["reminders"]["output_row"]
+                    .replace("{d}", duration)
+                    .replace("{n}", reminder.content)
+                    + "\n";
             }
             let footer = config["reminders"]["output_footer"];
             output += footer ? footer + "```" : "```";
