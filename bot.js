@@ -124,23 +124,44 @@ function bindAPIEvents() {
             }
         } else {
             let text = message.content.toLowerCase();
-            if ((text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) && text.endsWith("?")) {
-                if (text.includes("percent") || text.includes("%")) {
-                    message.channel.send(Math.floor(Math.random() * 101) + "%!");
-                } else if (text.includes("choose") && text.includes("or")) { //if asked to choose between items of a list, returns a random answer
+            if (text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) {
+                if (text.includes(":") || text.includes("choose") || text.includes("would you rather")) { //returns a random response from a natural list of options
+                    if (text.includes(", or ")) text = text.replace(/, or /g, ", ");
+                    if (text.includes(" or ")) text = text.replace(/ or /g, ", ");
+                    if (text.includes(":")) {
+                        text = text.slice(text.indexOf(":") + 2);
+                    } else if (text.includes("choose")) {
+                        let offset = 7;
+                        if (text.includes("choose from")) offset = 12;
+                        if (text.includes("choose between")) offset = 15;
+                        text = text.slice(text.indexOf("choose") + offset);
+                    } else if (text.includes("would you rather")) {
+                        text = text.slice(text.indexOf("would you rather") + 17);
+                    }
                     let choices = text.split(", ");
                     let results = [];
+                    let replacements = {"my ":"your ", "your ":"my ", "myself":"yourself", "yourself":"myself"};
+                    let re = new RegExp(Object.keys(replacements).join("|"), "g");
                     choices.forEach(function(word) {
-                        if (word != "bot") {
-                            if (word.includes(" ")) word = word.slice(word.lastIndexOf(" ") + 1);
-                            if (word.includes("?")) word = word.slice(0, word.length - 1);
-                            results.push(word);
+                        if (word.endsWith("?") || word.endsWith(".")) word = word.slice(0, word.length - 1);
+                        word = word.replace(re, function(matched) {
+                            return replacements[matched.toLowerCase()];
+                        });
+                        if (word == "me") { 
+                            word = "you";
+                        } else if (word == "you") {
+                            word = "me";
                         }
+                        results.push(word);
                     });
                     let output = results[Math.floor(Math.random() * results.length)];
                     message.channel.send(output.charAt(0).toUpperCase() + output.slice(1) + "!");
-                } else {
-                    message.channel.send((Math.random() < 0.5) ? "Yes!" : "No!");
+                } else if (text.endsWith("?")) {
+                    if (text.includes("percent") || text.includes("%")) {
+                        message.channel.send(Math.floor(Math.random() * 101) + "%!");
+                    } else {
+                        message.channel.send((Math.random() < 0.5) ? "Yes!" : "No!");
+                    }
                 }
             } else if (text.includes(config["general"]["bot_name"])) {
                 hearts = ["💚", "💜", "🖤", "💛", "💙", "❤️"];
