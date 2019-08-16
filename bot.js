@@ -593,7 +593,7 @@ commands["quoteby"] = (message, text) => {
     });
 }
 
-commands["reminders"] = (message) {
+commands["reminders"] = (message) => {
     let discordID = message.author.id;
     db.allReminders(discordID, (reminders) => {
         if (reminders.length == 0) {
