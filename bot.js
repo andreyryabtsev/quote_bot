@@ -123,34 +123,7 @@ function bindAPIEvents() {
                 commands[cmd](message, text);
             }
         } else {
-            let text = message.content.toLowerCase();
-            if ((text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) && text.endsWith("?")) {
-                if (text.includes("percent") || text.includes("%")) {
-                    message.channel.send(Math.floor(Math.random() * 101) + "%!");
-                } else if (text.includes("choose") && text.includes("or")) { //if asked to choose between items of a list, returns a random answer
-                    let choices = text.split(", ");
-                    let results = [];
-                    choices.forEach(function(word) {
-                        if (word != "bot") {
-                            if (word.includes(" ")) word = word.slice(word.lastIndexOf(" ") + 1);
-                            if (word.includes("?")) word = word.slice(0, word.length - 1);
-                            results.push(word);
-                        }
-                    });
-                    let output = results[Math.floor(Math.random() * results.length)];
-                    message.channel.send(output.charAt(0).toUpperCase() + output.slice(1) + "!");
-                } else {
-                    message.channel.send((Math.random() < 0.5) ? "Yes!" : "No!");
-                }
-            } else if (text.includes(config["general"]["bot_name"])) {
-                hearts = ["💚", "💜", "🖤", "💛", "💙", "❤️"];
-                let affections = ["love " + config["bot_name"], "love you " + config["general"]["bot_name"], "love u " + config["general"]["bot_name"]];
-                if (affections.some(affection => text.includes(affection))) {
-                    message.channel.send(config["general"]["love_response"]);
-                } else {
-                    message.react(util.simpleRandom(hearts));
-                }
-            }
+            respondToLanguage(message);
         }
     });
     client.on('raw', event => {
@@ -403,6 +376,48 @@ let scanReminders = () => {
         }
     }
     if (toDelete.length > 0) db.deleteReminders(toDelete, () => {});
+}
+
+let respondToLanguage = (message) => {
+    let text = message.content.toLowerCase();
+    if (text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) {
+        let listMarkers = [": ", "choose between ", "choose from ", "choose ", "would you rather "]; //in priority order
+        if (listMarkers.some(function(marker) { return text.indexOf(marker) >= 0; })) { //continues if the input contains one of the keywords
+            if (text.includes(", or ")) text = text.replace(/, or /g, ", ");
+            if (text.includes(" or ")) text = text.replace(/ or /g, ", ");
+            listMarkers.forEach(function(marker) {
+                if(text.includes(marker)) text = text.slice(text.indexOf(marker) + marker.length);
+            });
+            let choices = text.split(", ");
+            let results = [];
+            let replacements = {" my ":" your ", " your ":" my ", " myself ":" yourself ", " yourself ":" myself ", " you ":" me ", " me ":" you "};
+            let re = new RegExp(Object.keys(replacements).join("|"), "g");
+            choices.forEach(function(word) {
+                if (word.endsWith("?") || word.endsWith(".")) word = word.slice(0, word.length - 1);
+                word = " " + word + " ";
+                word = word.replace(re, function(matched) {
+                    return replacements[matched.toLowerCase()];
+                });
+                results.push(word.slice(1, word.length - 1));
+            });
+            let output = results[Math.floor(Math.random() * results.length)];
+            message.channel.send(output.charAt(0).toUpperCase() + output.slice(1) + "!");
+        } else if (text.endsWith("?")) {
+            if (text.includes("percent") || text.includes("%")) {
+                message.channel.send(Math.floor(Math.random() * 101) + "%!");
+            } else {
+                message.channel.send((Math.random() < 0.5) ? "Yes!" : "No!");
+            }
+        }
+    } else if (text.includes(config["general"]["bot_name"])) {
+        hearts = ["💚", "💜", "🖤", "💛", "💙", "❤️"];
+        let affections = ["love " + config["bot_name"], "love you " + config["general"]["bot_name"], "love u " + config["general"]["bot_name"]];
+        if (affections.some(affection => text.includes(affection))) {
+            message.channel.send(config["general"]["love_response"]);
+        } else {
+            message.react(util.simpleRandom(hearts));
+        }
+    }
 }
 
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
