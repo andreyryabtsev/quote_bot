@@ -38,6 +38,7 @@
         "add_error": "Please @mention someone and then write their new quote attribution name.",
         "quote_error": "Sadly, no quotes are available.",
         "format": "*\"{q}*\"\n                                        -{u}",
+        "num_author_error": "Tag someone to get their quote count!",
         "num_quotes": "I found {n} quotes.",
         "pin_threshold": 2,
         "relevancy_params": {
