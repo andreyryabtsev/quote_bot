@@ -7,7 +7,6 @@ const emojiRegex = require('emoji-regex/es2015/index.js');
 db.initialize(main);
 
 const REMINDER_POLLING_RATE = 5000;
-const EMOJI_REGEX = emojiRegex();
 var auth, config, client, filter, reminders, reminderInterval;
 var commands = {};
 function loadConfig() {
@@ -740,7 +739,7 @@ commands["vote"] = (message, text) => {
         .replace("{u}", message.member.displayName)
         .replace("{n}", voteName)
         .replace("{v}", voteString);
-    let reactionVotes = options.every(option => client.emojis.get(option) || EMOJI_REGEX.test(option))
+    let reactionVotes = options.every(option => client.emojis.get(option) || emojiRegex().test(option))
         ? options
         : VOTE_REACTIONS;
     message.channel.send(voteProposalString).then(voteMessage => {
