@@ -785,19 +785,22 @@ commands["vote"] = (message, text) => {
     let voteString = VOTE_REACTIONS[0] + ": " + args[1];
     for (let i = 0; i < count; i++) {
         options.push(args[i + 1]);
-        if (i > 0) voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
     }
     let voteName = args.slice(count + 1).join(" ");
+    let allEmojis = options.every(option => client.emojis.get(option) || emojiRegex().test(option));
+    if (!allEmojis) {
+        for (let i = 1; i < count; i++) {
+            voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
+        }
+    }
     let voteProposalString = config["vote"]["proposal"]
         .replace("{u}", message.member.displayName)
         .replace("{n}", voteName)
         .replace("{v}", voteString);
-    let reactionVotes = options.every(option => client.emojis.get(option) || emojiRegex().test(option))
-        ? options
-        : VOTE_REACTIONS;
+    let reactionVotes = allEmojis ? options : VOTE_REACTIONS;
     message.channel.send(voteProposalString).then(voteMessage => {
         db.addVote(voteName, message.channel.id, voteMessage.id, options, Date.now(), message.author.id, () => {});
-        addVoteReactions(voteMessage, 0, options.length);
+        addVoteReactions(voteMessage, reactionVotes, 0, options.length);
     });
 }
 
