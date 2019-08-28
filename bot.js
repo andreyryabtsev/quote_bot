@@ -274,9 +274,9 @@ let getCFGSentences = (n, callback, init) => {
 }
 
 // Recursively iterate over 0..n-1 and add vote reactions sequentially.
-let addVoteReactions = (message, i, n) => {
+let addVoteReactions = (message, reactionArray, i, n) => {
     if (i == n) return;
-    message.react(VOTE_REACTIONS[i]).then(r => addVoteReactions(message, i + 1, n));
+    message.react(reactionArray[i]).then(r => addVoteReactions(message, reactionArray, i + 1, n));
 }
 // Parse the reactions to a vote and the vote object, constructing a text summary.
 let parseVoteMessage = (message, voteInfo) => {
@@ -791,6 +791,9 @@ commands["vote"] = (message, text) => {
         .replace("{u}", message.member.displayName)
         .replace("{n}", voteName)
         .replace("{v}", voteString);
+    let reactionVotes = options.every(option => option.startsWith(":") && option.endsWith(":"))
+        ? options
+        : VOTE_REACTIONS;
     message.channel.send(voteProposalString).then(voteMessage => {
         db.addVote(voteName, message.channel.id, voteMessage.id, options, Date.now(), message.author.id, () => {});
         addVoteReactions(voteMessage, 0, options.length);
