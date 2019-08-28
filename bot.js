@@ -3,11 +3,11 @@ const util = require("./lib/util.js");
 const discord = require("discord.js");
 const fs = require("fs");
 const cp = require('child_process');
-const emojiRegex = require('emoji-regex');
+const emojiRegex = require('emoji-regex/es2015/index.js');
+const emojiRegexText = require('emoji-regex/es2015/text.js');
 db.initialize(main);
 
 const REMINDER_POLLING_RATE = 5000;
-const EMOJI_REGEX = emojiRegex();
 var auth, config, client, filter, reminders, reminderInterval;
 var commands = {};
 function loadConfig() {
@@ -793,6 +793,9 @@ commands["vote"] = (message, text) => {
         .replace("{u}", message.member.displayName)
         .replace("{n}", voteName)
         .replace("{v}", voteString);
+    for (let option of options) {
+        console.log(emoji + ": " + emojiRegex().test(emoji) + emojiRegexText().test(emoji));
+    }
     let reactionVotes = options.every(option => client.emojis.get(option) || EMOJI_REGEX.test(option))
         ? options
         : VOTE_REACTIONS;
