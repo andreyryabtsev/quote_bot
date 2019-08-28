@@ -791,7 +791,7 @@ commands["vote"] = (message, text) => {
         .replace("{u}", message.member.displayName)
         .replace("{n}", voteName)
         .replace("{v}", voteString);
-    let reactionVotes = options.every(option => option.startsWith(":") && option.endsWith(":"))
+    let reactionVotes = options.every(option => client.emojis.get(option))
         ? options
         : VOTE_REACTIONS;
     message.channel.send(voteProposalString).then(voteMessage => {
