@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 if [ -f "./pid" ]; then
     pid=`cat ./pid`
-    echo "bot was running with PID "$pid", stopped"
-    kill -9 $pid
+    kill -9 $pid 2>/dev/null
+    if [ $? -ne 0 ]; then
+        echo "bot had died, removed pid tracker"
+    else
+        echo "bot was running with PID "$pid", stopped"
+    fi
     rm ./pid
 else
-    if [ $# = 1 ]; then
+    if [ $# = 1 ]; then # special message when called from ./restart
         echo "bot was not running previously"
     else
         echo "bot is not running. start with ./start or use \`ps\` to find and kill its lost process"

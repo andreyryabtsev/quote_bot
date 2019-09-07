@@ -10,15 +10,15 @@ var auth, config, client, filter, reminders, reminderInterval;
 var commands = {};
 function loadConfig() {
     try {
-        auth = JSON.parse(fs.readFileSync("./auth.json", "utf8"));
-        config = JSON.parse(fs.readFileSync("./default_config.json", "utf8"));
+        auth = JSON.parse(fs.readFileSync("../auth.json", "utf8"));
+        config = JSON.parse(fs.readFileSync("../default_config.json", "utf8"));
     } catch (e) {
         util.logError("Unable to load auth and default config; please ensure defaults have not been edited and you copied defaults/auth.json", e);
         util.fatalError();
     }
     let custom;
     try {
-        custom = JSON.parse(fs.readFileSync("./config.json", "utf8"));
+        custom = JSON.parse(fs.readFileSync("../config.json", "utf8"));
     } catch (e) {
         util.logError("Custom config missing or malformatted, proceeding with default.");
         custom = {}
@@ -27,7 +27,7 @@ function loadConfig() {
 }
 function loadFilter() {
     try {
-        filter = fs.readFileSync("./filter.txt", "utf8");
+        filter = fs.readFileSync("../filter.txt", "utf8");
     } catch (e) {
         util.logError("No filter list found, filtering disabled.");
         filter = "";
@@ -198,14 +198,14 @@ let produceChart = (channel, users, members, days) => {
         for (let nickname in usersToLogs) {
             chartfile += nickname + "\n" + usersToLogs[nickname].join(" ") + "\n";
         }
-        fs.writeFileSync("./chart/chartdata", chartfile, 'utf8');
-        cp.exec("python3 ./chart/chartgen.py ./chart/", (error, stdout, stderr) => {
+        fs.writeFileSync("../chart/chartdata", chartfile, 'utf8');
+        cp.exec("python3 ../chart/chartgen.py ../chart/", (error, stdout, stderr) => {
             if (error) util.logError("[chartgen] ERROR: " + error);
             if (stdout) console.log("[chartgen] " + stdout);
             if (stderr) util.logError("[chartgen] " + stderr);
             channel.send({
                 files: [{
-                    attachment: './chart/chart.png',
+                    attachment: '../chart/chart.png',
                     name: 'botchart.png'
                 }]
             })

@@ -10,6 +10,6 @@ else
     if [ -f "./errorlog.txt" ]; then
         mv ./errorlog.txt "./oldlogs/"$date".error.txt"
     fi
-    node bot.js >> log.txt 2>errorlog.txt & echo $! > pid
+    node src/bot.js >> log.txt 2>errorlog.txt & echo $! > pid
     echo "bot started with PID "$!
 fi
