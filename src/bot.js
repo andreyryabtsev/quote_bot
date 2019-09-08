@@ -8,17 +8,32 @@ db.initialize(main);
 const REMINDER_POLLING_RATE = 5000;
 var auth, config, client, filter, reminders, reminderInterval;
 var commands = {};
+
+// command code loading
+fs.readdir("./src/commands/", function(error, items) {
+    if (error != null) {
+        util.logError(error);
+        util.fatalError();
+    }
+    items.forEach(item => {
+        let command = require("./commands/" + item);
+        commands[item.substring(0, item.lastIndexOf("."))] = command;
+    });
+    console.log(commands);
+});
+// end command code loading
+
 function loadConfig() {
     try {
-        auth = JSON.parse(fs.readFileSync("../auth.json", "utf8"));
-        config = JSON.parse(fs.readFileSync("../default_config.json", "utf8"));
+        auth = JSON.parse(fs.readFileSync("./auth.json", "utf8"));
+        config = JSON.parse(fs.readFileSync("./default_config.json", "utf8"));
     } catch (e) {
         util.logError("Unable to load auth and default config; please ensure defaults have not been edited and you copied defaults/auth.json", e);
         util.fatalError();
     }
     let custom;
     try {
-        custom = JSON.parse(fs.readFileSync("../config.json", "utf8"));
+        custom = JSON.parse(fs.readFileSync("./config.json", "utf8"));
     } catch (e) {
         util.logError("Custom config missing or malformatted, proceeding with default.");
         custom = {}
@@ -27,7 +42,7 @@ function loadConfig() {
 }
 function loadFilter() {
     try {
-        filter = fs.readFileSync("../filter.txt", "utf8");
+        filter = fs.readFileSync("./filter.txt", "utf8");
     } catch (e) {
         util.logError("No filter list found, filtering disabled.");
         filter = "";
@@ -394,393 +409,6 @@ let scanReminders = () => {
 }
 
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
-
-commands["addquote"] = (message, text) => {
-    if (!message.mentions.users.first()) {
-        message.channel.send(config["quotes"]["add_error"]);
-    } else {
-        let content = text.substring(text.indexOf(" ") + 1);
-        db.addQuote(message.mentions.users.first().id, Date.now(), content, () => {
-            message.react(ACKNOWLEDGEMENT_EMOTE);
-        });
-    }
-}
-
-commands["chart"] = (message, text) => {
-    let numDays = parseInt(util.args(text)[0]);
-    if (!(numDays > 0 && numDays <= 365)) {
-        message.channel.send(config["logs"]["chart_error"]);
-    } else {
-        let mentionUsers = message.mentions.users.array(), mentionMembers = message.mentions.members.array();
-        if (mentionUsers.length == 0) {
-            mentionUsers = [message.author];
-            mentionMembers = [message.member];
-        }
-        produceChart(message.channel, mentionUsers, mentionMembers, numDays);
-    }
-}
-
-commands["clear"] = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
-        let count = parseInt(util.args(text)[0]);
-        if (count <= 0 || count > 100) {
-            message.channel.send(config["clear"]["error"]);
-        } else {
-            message.channel.bulkDelete(count + 1).then(messages => {
-                message.channel.send(config["clear"]["response"].replace("{n}", count))
-                .then(message => message.delete(config["etc"]["message_delete_wait"]));
-            });
-        }
-    });
-}
-
-commands["delquotes"] = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
-        db.deleteQuotes(text, () => {
-            message.react(ACKNOWLEDGEMENT_EMOTE);
-        });
-    });
-}
-
-commands["f"] = (message) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
-        let member = message.mentions.members.first();
-        if (member) {
-            member.setVoiceChannel(member.guild.afkChannel);
-        }
-    });
-}
-
-commands["flipcoin"] = (message, text) => {
-    let numCoins = parseInt(util.args(text)[0]);
-    if (isNaN(numCoins) || numCoins < 1) numCoins = 1;
-    if (numCoins > config["etc"]["max_coins"]) {
-        message.channel.send(config["etc"]["coin_error"]);
-        return;
-    }
-    let heads = 0;
-    for (let i = 0; i < numCoins; i++) if (Math.random() > 0.5) heads++;
-    if (numCoins == 1) message.channel.send(heads == 1 ? "Heads!" : "Tails!");
-    else message.channel.send(config["etc"]["coin_output_many"].replace("{n}", heads));
-}
-
-commands["forget"] = (message, text) => {
-    let args = util.args(text), pos = "<" + args[0] + ">";
-    let typeID = PARTS_OF_SPEECH.indexOf(pos);
-    if (args.length < 2 || typeID == -1) {
-        message.channel.send(config["cfg"]["forget_error"]);
-    } else {
-        let vocabType = PARTS_OF_SPEECH.indexOf(pos);
-        db.forgetVocab(vocabType, args[1], deletions => {
-            if (deletions == 0) {
-                message.channel.send(config["cfg"]["forget_missing_error"]);
-            } else {
-                message.react(ACKNOWLEDGEMENT_EMOTE);
-            }
-        });
-    }
-}
-
-commands["help"] = (message) => {
-    let help = util.splitLongMessage(generateHelp());
-    for (let msg of help) message.channel.send(msg);
-}
-
-commands["name"] = (message) => {
-    let id = message.mentions.users.first() ? message.mentions.users.first().id : message.author.id;
-    let displayName = message.mentions.members.first() ? message.mentions.members.first().displayName : message.member.displayName;
-    db.quoteName(id, quoteName => {
-        if (!quoteName) message.channel.send(config["quotes"]["name_error"]);
-        else message.channel.send(config["quotes"]["name_response"].replace("{u}", displayName).replace("{n}", quoteName));
-    });
-}
-
-commands["numquotes"] = (message, text) => {
-    db.filteredQuotes(text, quotes => {
-        message.channel.send(config["quotes"]["num_quotes"].replace("{n}", quotes.length));
-    });
-}
-
-commands["numquotesby"] = (message, text) => {
-    let users = message.mentions.users.map(u => u.id);
-    if (!users) {
-        message.channel.send(config["quotes"]["num_author_error"]);
-        return;
-    }
-    db.filteredUserQuotes(users, quotes => {
-        message.channel.send(config["quotes"]["num_quotes"].replace("{n}", quotes.length));
-    });
-}
-
-commands["ping"] = (message) => {
-    message.channel.send(config["general"]["ping_response"]);
-}
-
-commands["quote"] = (message, text) => {
-    if (text) {
-        db.filteredQuotes(text, quotes => {
-            if (quotes.length > 0) {
-                let quote = util.simpleRandom(quotes);
-                sendQuote(message.channel, quote.content, quote.nickname);
-            } else {
-                message.channel.send(config["quotes"]["quote_error"]);
-                return;
-            }
-        });
-    } else {
-        let n = config["quotes"]["relevancy_params"]["message_count"],
-            e = config["quotes"]["relevancy_params"]["exponentiation"],
-            p = config["quotes"]["relevancy_params"]["weight"];
-        message.channel.fetchMessages({ limit: n * 10, before: message.id}).then(messages => {
-            db.allQuotes(quotes => {
-                if (quotes.length == 0) {
-                    message.channel.send(config["quotes"]["quote_error"]);
-                    return;
-                }
-                let minTime = Math.min(...quotes.map(quote => {
-                    return !parseInt(quote.called_at) ? Infinity : parseInt(quote.called_at);
-                }));
-                let quoteGlossary = buildQuoteGlossary(quotes);
-                let recentGlossary = {};
-                messages = messages.array();
-                let count = 0;
-                for (let i = 0; i < n*10; i++) {
-                    if (!messages[i].author.bot && !messages[i].content.startsWith("!")) {
-                        let words = util.toWords(messages[i].content);
-                        if (words.length > 1) {
-                            for (let word of words) {
-                                if (!(word in recentGlossary)) recentGlossary[word] = 0;
-                                recentGlossary[word]++;
-                            }
-                            if (++count >= n) break;
-                        }
-                    }
-                }
-                if (Object.keys(recentGlossary).length == 0) {
-                    let quote = util.simpleRandom(quotes);
-                    sendQuote(message.channel, quote.content, quote.nickname);
-                    return;
-                }
-                let weightSum = 0.0;
-                quotes = quotes.map(quote => {
-                    let rank = 0.0;
-                    util.toWords(quote.content).forEach(word => {
-                        if (quoteGlossary[word]) { //todo: figure out why there are quotes whose util.toWords is not a subset of quoteGlossary
-                            rank += (recentGlossary[word] || 0.0) / quoteGlossary[word];
-                        }
-                    });
-                    timeRatio = !parseInt(quote.called_at) ? 1 : ((Date.now() - parseInt(quote.called_at)) / (Date.now() - minTime));
-                    rank = timeRatio * Math.pow(rank, e);
-                    weightSum += rank;
-                    return {value: quote, weight: rank};
-                }).map(quote => {
-                    let processedWeight = p * quote.weight / weightSum + (1 - p) / quotes.length;
-                    return {value: quote.value, weight: processedWeight};
-                });
-
-                quotes.sort((a,b) => b.weight - a.weight); // sort and report quotes for debug purposes
-                for (let i = 0; i < Math.min(5, quotes.length); i++) console.log("[relevant_quotes]: " + quotes[i].value.content + ": " + quotes[i].weight);
-                let quote = util.weightedRandom(quotes);
-                sendQuote(message.channel, quote.content, quote.nickname);
-            });
-        });
-    }
-}
-
-commands["quoteby"] = (message, text) => {
-    let user = message.mentions.users.first();
-    if (!user) {
-        message.channel.send(config["quotes"]["author_error"]);
-        return;
-    }
-    db.authoredQuotes(user.id, quotes => {
-        if (quotes.length > 0) {
-            let quote = util.simpleRandom(quotes);
-            sendQuote(message.channel, quote.content, quote.nickname);
-        } else {
-            message.channel.send(config["quotes"]["quote_error"]);
-            return;
-        }
-    });
-}
-
-commands["remindme"] = (message, text) => {
-    let seconds = util.timeToSecs(util.args(text)[0]),
-        note = text.substring(text.indexOf(" ") + 1),
-        now = Date.now();
-    if (note === text) note = "";
-    if (seconds === null) {
-        message.channel.send(config["reminders"]["format_error"]);
-    } else {
-        db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
-            reminders.push({
-                id: results.insertId,
-                channelID: message.channel.id,
-                discordID: message.author.id,
-                start: now,
-                seconds: seconds,
-                note: note
-            });
-            message.react(ACKNOWLEDGEMENT_EMOTE);
-        });
-    }
-}
-
-commands["rng"] = (message, text) => {
-    let max = parseInt(util.args(text)[0]);
-    if (isNaN(max) || max <= 0) {
-        message.channel.send(config["etc"]["rng_error"]);
-        return;
-    }
-    message.channel.send(1 + Math.floor(Math.random() * max));
-}
-
-commands["setname"] = (message, text) => {
-    let user = message.mentions.users.first() || message.author,
-        newName = message.mentions.users.first() ? text.substring(text.indexOf(" ") + 1) : text;
-    db.updateNickname(user.id, newName, () => {
-        message.react(ACKNOWLEDGEMENT_EMOTE);
-    });
-}
-
-commands["signature"] = (message, text) => {
-    let signature = util.args(text)[0];
-    db.updateSignature(message.author.id, signature, () => {
-        message.react(ACKNOWLEDGEMENT_EMOTE);
-    });
-}
-
-commands["speak"] = (message, text) => {
-    let n = parseInt(util.args(text)[0]);
-    if (!(n > 0 && n <= 25)) n = 1;
-    getCFGSentences(n, sentences => {
-        let output = "";
-        for (let sentence of sentences) {
-            output += sentence + "\n";
-        }
-        message.channel.send(output);
-    }, true);
-}
-
-commands["teach"] = (message, text) => {
-    let args = util.args(text), pos = "<" + args[0] + ">";
-    let typeID = PARTS_OF_SPEECH.indexOf(pos);
-    if (args.length < 2 || typeID == -1) {
-        message.channel.send(config["cfg"]["teach_error"]);
-    } else {
-        let word = text.substring(text.indexOf(" ") + 1);
-        db.checkVocab(typeID, word, exists => {
-            if (exists) {
-                message.channel.send(config["cfg"]["teach_present_error"]);
-            } else {
-                db.addVocab(typeID, word, () => {
-                    message.react(ACKNOWLEDGEMENT_EMOTE);
-                });
-            }
-        });
-    }
-}
-
-commands["undo"] = (message) => {
-    util.getPermission(db, message.author.id, "UNDO", message.channel, config["general"]["permission_denied_error"], () => {
-        db.deleteLastLog(message.author.id, rowsAffected => {
-            if (rowsAffected > 0) {
-                message.channel.send(config["logs"]["undo_response"].replace("{u}", message.member.displayName));
-            } else {
-                message.channel.send(config["logs"]["undo_error"]);
-            }
-        });
-    });
-}
-
-commands["vocab"] = (message, text) => {
-    let args = util.args(text), pos = "<" + args[0] + ">";
-    let typeID = PARTS_OF_SPEECH.indexOf(pos);
-    if (args.length < 1 || typeID == -1 && args[0] != "all") {
-        message.channel.send(config["cfg"]["vocab_error"]);
-    } else {
-        if (args[1] == "count") {
-            db.countVocab(typeID, count => {
-                if (args[0] == "all") args[0] = "word";
-                message.channel.send(config["cfg"]["vocab_count_response"].replace("{n}", count).replace("{t}", args[0]));
-            });
-        } else {
-            db.fetchVocab(typeID, vocab => {
-                vocab.sort();
-                for (let i = 0; i < vocab.length / VOCAB_WORDS_PER_MESSAGE; i++) {
-                    let vocabSlice = vocab.slice(i * VOCAB_WORDS_PER_MESSAGE, (i + 1) * VOCAB_WORDS_PER_MESSAGE);
-                    message.channel.send(vocabSlice.join(", "));
-                }
-            });
-        }
-    }
-}
-
-commands["vote"] = (message, text) => {
-    let args = util.args(text);
-    if (args.length < 3) {
-        message.channel.send(config["vote"]["proposal_error"]);
-        return;
-    }
-    let count = parseInt(args[0]), options = [];
-    if (count <= 0 || count > 10 || args.length < count + 1) {
-        message.channel.send(config["vote"]["proposal_error"]);
-        return;
-    }
-
-    let voteString = VOTE_REACTIONS[0] + ": " + args[1];
-    for (let i = 0; i < count; i++) {
-        options.push(args[i + 1]);
-        if (i > 0) voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
-    }
-    let voteName = args.slice(count + 1).join(" ");
-    let voteProposalString = config["vote"]["proposal"]
-        .replace("{u}", message.member.displayName)
-        .replace("{n}", voteName)
-        .replace("{v}", voteString);
-    message.channel.send(voteProposalString).then(voteMessage => {
-        db.addVote(voteName, message.channel.id, voteMessage.id, options, Date.now(), message.author.id, () => {});
-        addVoteReactions(voteMessage, 0, options.length);
-    });
-}
-
-commands["votestatus"] = (message, text) => {
-    db.lastVote(text, vote => {
-        if (!vote) {
-            if (text) {
-                message.channel.send(config["vote"]["search_error"]);
-            } else {
-                message.channel.send(config["vote"]["search_error_blank"]);
-            }
-        } else {
-            // Try to find correct channel, default to current one
-            let voteChannel = client.channels.get(vote.discord_channel_id) || message.channel;
-            voteChannel.fetchMessage(vote.discord_message_id).then(voteMessage => {
-                message.channel.send(parseVoteMessage(voteMessage, vote));
-            }).catch(error => {
-                message.channel.send(config["vote"]["corruption_error"]);
-            });
-        }
-    });
-}
-
-commands["when"] = (message, text) => {
-    let id = message.mentions.users.first()
-            ? message.mentions.users.first().id
-            : message.author.id,
-        nickname = message.mentions.members.first()
-            ? message.mentions.members.first().displayName
-            : message.member.displayName;
-    db.lastLog(id, (logInfo) => {
-        if (logInfo) {
-            let duration = util.formatDuration(Date.now() - logInfo.lastLog);
-            message.channel.send(config["logs"]["when_response"].replace("{d}", duration).replace("{u}", nickname).replace("{s}", logInfo.signature));
-        } else {
-            message.channel.send(config["logs"]["when_error"].replace("{u}", nickname));
-        }
-    });
-}
-
 let configurableCommands = () => {
     commands[config["logs"]["log_command"]] = (message, text) => {
         db.addLog(message.author.id, Date.now(), text, () => {
