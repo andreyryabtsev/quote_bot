@@ -1,28 +1,27 @@
-﻿db = require("./lib/db.js");
-util = require("./lib/util.js");
-discord = require("discord.js");
-fs = require("fs");
-cp = require('child_process');
+﻿const db = require("./lib/db.js");
+const util = require("./lib/util.js");
+const discord = require("discord.js");
+const fs = require("fs");
+const cp = require('child_process');
 db.initialize(main);
-config = undefined;
-client = undefined;
 
 const REMINDER_POLLING_RATE = 5000;
-const auth, filter, reminders, reminderInterval;
-var commands = {};
-
+var auth, config, client, filter, reminders, reminderInterval;
+var commands = {}, shared = {};
+var core = {};
 // command code loading
-fs.readdir("./src/commands/", function(error, items) {
-    if (error != null) {
-        util.logError(error);
-        util.fatalError();
-    }
-    items.forEach(item => {
-        let command = require("./commands/" + item);
-        commands[item.substring(0, item.lastIndexOf("."))] = command;
-    });
-    console.log(commands);
-});
+util.forEachFile("commands/", function(item) {
+    let command = require("./commands/" + item);
+    commands[item.substring(0, item.lastIndexOf("."))] = command;
+}, () => console.log("[BOOT] Loaded commands."));
+// shared methods
+util.forEachFile("shared/", function(item) {
+    let method = require("./shared/" + item);
+    shared[item.substring(0, item.lastIndexOf("."))] = function(...inputs) {
+        return method(core, ...inputs);
+    };
+}, () => console.log("[BOOT] Loaded shared code."));
+
 // end command code loading
 
 function loadConfig() {
@@ -60,7 +59,7 @@ function main() {
     console.log("[BOOT] Loaded and processed auth, filter and config.");
     client = new discord.Client();
     bindAPIEvents();
-    client.login(auth.token).catch(error=>{
+    client.login(auth.token).catch(error => {
         util.logError(error);
         util.fatalError();
     });
@@ -123,6 +122,7 @@ function bindAPIEvents() {
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord account.");
         initializeData(() => {
+            core = {client, db, util, config};
             console.log("[BOOT] Initialized all data, ready.");
         });
     });
@@ -137,7 +137,7 @@ function bindAPIEvents() {
             let cmd = argIndex == -1 ? message.content.substring(1) : message.content.substring(1, argIndex);
             if (cmd in commands) {
                 let text = argIndex == -1 ? "" : message.content.substring(argIndex + 1);
-                commands[cmd](message, text);
+                commands[cmd](core, message, text);
             }
         } else {
             let text = message.content.toLowerCase();
@@ -199,51 +199,6 @@ let generateHelp = () => {
         helpLines.push(item + " - " + config["help_items"][item] + "\n");
     }
     return helpLines;
-}
-
-// Process all logged events for the selected users and computes the number of days ago they were produced
-// Then, write results to ./chart/chartdata and invoke the python visualizer, sending image to channel.
-let produceChart = (channel, users, members, days) => {
-    let millisecondsInDay = 86400000;
-    db.allLogs(users.map(user => user.id), Date.now() - days * millisecondsInDay, results => {
-        let usersToLogs = {};
-        for (let row of results) {
-            if (usersToLogs[row.nickname] == undefined) usersToLogs[row.nickname] = [];
-            usersToLogs[row.nickname].push(Math.floor((Date.now() - row.created_at) / millisecondsInDay));
-        }
-        let chartfile = days + "\n";
-        for (let nickname in usersToLogs) {
-            chartfile += nickname + "\n" + usersToLogs[nickname].join(" ") + "\n";
-        }
-        fs.writeFileSync("../chart/chartdata", chartfile, 'utf8');
-        cp.exec("python3 ../chart/chartgen.py ../chart/", (error, stdout, stderr) => {
-            if (error) util.logError("[chartgen] ERROR: " + error);
-            if (stdout) console.log("[chartgen] " + stdout);
-            if (stderr) util.logError("[chartgen] " + stderr);
-            channel.send({
-                files: [{
-                    attachment: '../chart/chart.png',
-                    name: 'botchart.png'
-                }]
-            })
-        });
-    });
-}
-
-// Parse quotes into popularity of each word
-let buildQuoteGlossary = (quotes) => {
-    quoteGlossary = {};
-    quotes.forEach(quote => {
-        util.toWords(quote.content).forEach(word => {
-            if (!(word in quoteGlossary)) quoteGlossary[word] = 0;
-            quoteGlossary[word]++;
-        });
-    });
-    return quoteGlossary;
-}
-let sendQuote = (channel, content, author) => {
-    channel.send(config["quotes"]["format"].replace("{q}", content).replace("{u}", author));
-    db.updateQuote(content, Date.now());
 }
 
 // CFG: Compute and store the vocab lists from database, refreshing with a new query when over
@@ -387,14 +342,14 @@ let scanReminders = () => {
 
 // --------------------- COMMANDS (responses to ! calls) ---------------------------
 let configurableCommands = () => {
-    commands[config["logs"]["log_command"]] = (message, text) => {
+    commands[config["logs"]["log_command"]] = (core, message, text) => {
         db.addLog(message.author.id, Date.now(), text, () => {
             message.channel.send(config["logs"]["log_response"].replace("{u}", message.member.displayName));
         });
     }
 
     for (let cmd in config["plain_responses"]) {
-        commands[cmd] = (message, text) => {
+        commands[cmd] = (core, message, text) => {
             message.channel.send(config["plain_responses"][cmd]);
         }
     }

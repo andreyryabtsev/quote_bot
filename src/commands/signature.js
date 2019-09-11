@@ -1,6 +1,6 @@
-module.exports = (message, text) => {
-    let signature = util.args(text)[0];
-    db.updateSignature(message.author.id, signature, () => {
+module.exports = (core, message, text) => {
+    let signature = core.util.args(text)[0];
+    core.db.updateSignature(message.author.id, signature, () => {
         message.react(ACKNOWLEDGEMENT_EMOTE);
     });
 }

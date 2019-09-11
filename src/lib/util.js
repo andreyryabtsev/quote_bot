@@ -34,6 +34,17 @@ module.exports.fatalError = () => {
     process.exit(1);
 }
 
+module.exports.forEachFile = (directory, func, callback) => {
+    fs.readdir(__dirname + "/../" + directory, function(error, items) {
+        if (error != null) {
+            util.logError(error);
+            util.fatalError();
+        }
+        items.forEach(func);
+        if (callback) callback();
+    });
+}
+
 module.exports.formatDuration = (ms) => {
     let result = "",
         sec = (ms / 1000 >> 0) % 60,

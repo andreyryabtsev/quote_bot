@@ -1,10 +1,10 @@
-module.exports = (message, text) => {
+module.exports = (core, message, text) => {
     let users = message.mentions.users.map(u => u.id);
     if (!users) {
-        message.channel.send(config["quotes"]["num_author_error"]);
+        message.channel.send(core.config["quotes"]["num_author_error"]);
         return;
     }
-    db.filteredUserQuotes(users, quotes => {
-        message.channel.send(config["quotes"]["num_quotes"].replace("{n}", quotes.length));
+    core.db.filteredUserQuotes(users, quotes => {
+        message.channel.send(core.config["quotes"]["num_quotes"].replace("{n}", quotes.length));
     });
 }

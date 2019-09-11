@@ -1,3 +1,3 @@
-module.exports = (message) => {
-    message.channel.send(config["general"]["ping_response"]);
+module.exports = (core, message) => {
+    message.channel.send(core.config["general"]["ping_response"]);
 }

@@ -1,9 +1,9 @@
-module.exports = (message, text) => {
+module.exports = (core, message, text) => {
     if (!message.mentions.users.first()) {
-        message.channel.send(config["quotes"]["add_error"]);
+        message.channel.send(core.config["quotes"]["add_error"]);
     } else {
         let content = text.substring(text.indexOf(" ") + 1);
-        db.addQuote(message.mentions.users.first().id, Date.now(), content, () => {
+        core.db.addQuote(message.mentions.users.first().id, Date.now(), content, () => {
             message.react(ACKNOWLEDGEMENT_EMOTE);
         });
     }

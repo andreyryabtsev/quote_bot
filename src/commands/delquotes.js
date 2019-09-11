@@ -1,6 +1,6 @@
-module.exports = (message, text) => {
-    util.getPermission(db, message.author.id, "ADMIN", message.channel, config["general"]["permission_denied_error"], () => {
-        db.deleteQuotes(text, () => {
+module.exports = (core, message, text) => {
+    core.util.getPermission(core.db, message.author.id, "ADMIN", message.channel, core.config["general"]["permission_denied_error"], () => {
+        core.db.deleteQuotes(text, () => {
             message.react(ACKNOWLEDGEMENT_EMOTE);
         });
     });

@@ -1,5 +1,5 @@
-module.exports = (message, text) => {
-    db.filteredQuotes(text, quotes => {
-        message.channel.send(config["quotes"]["num_quotes"].replace("{n}", quotes.length));
+module.exports = (core, message, text) => {
+    core.db.filteredQuotes(text, quotes => {
+        message.channel.send(core.config["quotes"]["num_quotes"].replace("{n}", quotes.length));
     });
 }

@@ -1,15 +1,15 @@
-module.exports = (message, text) => {
+module.exports = (core, message, text) => {
     let user = message.mentions.users.first();
     if (!user) {
-        message.channel.send(config["quotes"]["author_error"]);
+        message.channel.send(core.config["quotes"]["author_error"]);
         return;
     }
-    db.authoredQuotes(user.id, quotes => {
+    core.db.authoredQuotes(user.id, quotes => {
         if (quotes.length > 0) {
-            let quote = util.simpleRandom(quotes);
+            let quote = core.util.simpleRandom(quotes);
             sendQuote(message.channel, quote.content, quote.nickname);
         } else {
-            message.channel.send(config["quotes"]["quote_error"]);
+            message.channel.send(core.config["quotes"]["quote_error"]);
             return;
         }
     });
