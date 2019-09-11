@@ -1,12 +1,14 @@
-﻿const db = require("./lib/db.js");
-const util = require("./lib/util.js");
-const discord = require("discord.js");
-const fs = require("fs");
-const cp = require('child_process');
+﻿db = require("./lib/db.js");
+util = require("./lib/util.js");
+discord = require("discord.js");
+fs = require("fs");
+cp = require('child_process');
 db.initialize(main);
+config = undefined;
+client = undefined;
 
 const REMINDER_POLLING_RATE = 5000;
-var auth, config, client, filter, reminders, reminderInterval;
+const auth, filter, reminders, reminderInterval;
 var commands = {};
 
 // command code loading
