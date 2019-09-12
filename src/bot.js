@@ -67,7 +67,7 @@ function loadCode() {
                 shared[item.substring(0, item.lastIndexOf("."))] = function(...inputs) {
                     return method(core, ...inputs);
                 };
-            }, resolve());
+            }, resolve);
         });
     });
 }
