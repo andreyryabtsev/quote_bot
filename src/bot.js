@@ -91,7 +91,8 @@ async function boot() {
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord.");
         initializeDB(() => {
-            core = {client, db, fs, cp, util, filter, config, shared, reminders, ACKNOWLEDGEMENT_EMOTE, PARTS_OF_SPEECH, VOTE_REACTIONS, vocabUpdate: null};
+            core = {client, db, fs, cp, util, filter, config, shared, reminders,
+                ACKNOWLEDGEMENT_EMOTE, PARTS_OF_SPEECH, VOTE_REACTIONS, REMINDER_POLLING_RATE, vocabUpdate: null};
             bindAPIEvents();
             console.log("[BOOT] Initialized all data, ready.");
         });

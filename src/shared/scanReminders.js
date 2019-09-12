@@ -6,7 +6,7 @@ module.exports = (core) => {
         let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
         if (expiry <= now) {
             // if late by more than double polling rate, likely offline
-            let template = expiry <= now - REMINDER_POLLING_RATE * 2000
+            let template = expiry <= now - core.REMINDER_POLLING_RATE * 2000
                 ? core.config["reminders"]["late_reminder"]
                 : core.config["reminders"]["reminder"];
             client.channels.get(reminder.channelID).send(template
