@@ -9,7 +9,7 @@ module.exports = (core) => {
             let template = expiry <= now - core.REMINDER_POLLING_RATE * 2000
                 ? core.config["reminders"]["late_reminder"]
                 : core.config["reminders"]["reminder"];
-            client.channels.get(reminder.channelID).send(template
+            core.client.channels.get(reminder.channelID).send(template
                 .replace("{u}", "<@" + reminder.discordID + ">")
                 .replace("{n}", reminder.note));
             core.reminders.splice(i, 1);
