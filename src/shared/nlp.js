@@ -21,7 +21,7 @@ module.exports = (core, message) => {
             let choices = text.split(", ").map(word => {
                 if (word.endsWith("?") || word.endsWith(".")) word = word.slice(0, word.length - 1);
                 word = " " + word + " ";
-                return word.replace(replacementRegex, match => replacements[match.toLowerCase()]).trim();
+                return word.replace(replacementRegex, match => REPLACEMENT_MAP[match.toLowerCase()]).trim();
             });
             let output = core.util.simpleRandom(choices);
             message.channel.send(output.charAt(0).toUpperCase() + output.slice(1) + "!");
