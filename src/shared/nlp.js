@@ -5,8 +5,7 @@ const REPLACEMENT_MAP = {
 };
 const MARKERS = [": ", "choose between ", "choose from ", "choose ", "would you rather "];
 
-let markerRegex = new RegExp("^.*(" + MARKERS.join("|") + ")", "g"),
-    replacementRegex = new RegExp(Object.keys(REPLACEMENT_MAP).join("|"), "g");
+let replacementRegex = new RegExp(Object.keys(REPLACEMENT_MAP).join("|"), "g");
 
 module.exports = (core, message) => {
     if (message.author.bot) return;
@@ -14,7 +13,10 @@ module.exports = (core, message) => {
     if (text.startsWith("bot") || text.startsWith(config["general"]["bot_name"])) {
         if (markerRegex.test(text)) { // continues if the input contains one of the keywords
             text = text.replace(/(, or | or )/g, ", ");
-            text.replace(markerRegex, "");
+            MARKERS.forEach(marker => {
+                let i = text.indexOf(marker);
+                if (i >= 0) text = text.slice(i + marker.length);
+            });
             let choices = text.split(", ").map(word => {
                 if (word.endsWith("?") || word.endsWith(".")) word = word.slice(0, word.length - 1);
                 word = " " + word + " ";
