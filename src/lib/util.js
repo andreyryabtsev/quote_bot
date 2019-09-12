@@ -58,7 +58,9 @@ module.exports.getPermission = (db, discordId, permissionName, channel, denied, 
         }
     }
     let permissionValue = module.exports.permissionValue(permissionName);
+    console.log("permissionVal (exp 5): " + permissionValue);
     db.userPermissions(discordId, permissions => {
+        console.log("permissions (exp 4): " + permissions);
         if (permissions & permissionValue != 0) ok();
         else notOk();
     });
