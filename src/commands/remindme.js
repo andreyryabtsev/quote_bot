@@ -7,7 +7,7 @@ module.exports = (core, message, text) => {
         message.channel.send(core.config["reminders"]["format_error"]);
     } else {
         core.db.addReminder(message.author.id, message.channel.id, now, note, seconds, (results) => {
-            reminders.push({
+            core.reminders.push({
                 id: results.insertId,
                 channelID: message.channel.id,
                 discordID: message.author.id,
