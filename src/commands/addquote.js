@@ -4,7 +4,7 @@ module.exports = (core, message, text) => {
     } else {
         let content = text.substring(text.indexOf(" ") + 1);
         core.db.addQuote(message.mentions.users.first().id, Date.now(), content, () => {
-            message.react(ACKNOWLEDGEMENT_EMOTE);
+            message.react(core.ACKNOWLEDGEMENT_EMOTE);
         });
     }
 }

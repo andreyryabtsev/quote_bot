@@ -22,7 +22,7 @@ module.exports = (core, message, text) => {
                 let minTime = Math.min(...quotes.map(quote => {
                     return !parseInt(quote.called_at) ? Infinity : parseInt(quote.called_at);
                 }));
-                let quoteGlossary = buildQuoteGlossary(quotes);
+                let quoteGlossary = buildQuoteGlossary(core, quotes);
                 let recentGlossary = {};
                 messages = messages.array();
                 let count = 0;
@@ -40,7 +40,7 @@ module.exports = (core, message, text) => {
                 }
                 if (Object.keys(recentGlossary).length == 0) {
                     let quote = core.util.simpleRandom(quotes);
-                    sendQuote(message.channel, quote.content, quote.nickname);
+                    core.shared.sendQuote(message.channel, quote.content, quote.nickname);
                     return;
                 }
                 let weightSum = 0.0;
@@ -63,8 +63,19 @@ module.exports = (core, message, text) => {
                 quotes.sort((a,b) => b.weight - a.weight); // sort and report quotes for debug purposes
                 for (let i = 0; i < Math.min(5, quotes.length); i++) console.log("[relevant_quotes]: " + quotes[i].value.content + ": " + quotes[i].weight);
                 let quote = core.util.weightedRandom(quotes);
-                sendQuote(message.channel, quote.content, quote.nickname);
+                core.shared.sendQuote(message.channel, quote.content, quote.nickname);
             });
         });
     }
+}
+
+let buildQuoteGlossary = (core, quotes) => {
+    quoteGlossary = {};
+    quotes.forEach(quote => {
+        core.util.toWords(quote.content).forEach(word => {
+            if (!(word in quoteGlossary)) quoteGlossary[word] = 0;
+            quoteGlossary[word]++;
+        });
+    });
+    return quoteGlossary;
 }

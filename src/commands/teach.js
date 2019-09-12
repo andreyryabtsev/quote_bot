@@ -1,6 +1,6 @@
 module.exports = (core, message, text) => {
     let args = core.util.args(text), pos = "<" + args[0] + ">";
-    let typeID = PARTS_OF_SPEECH.indexOf(pos);
+    let typeID = core.PARTS_OF_SPEECH.indexOf(pos);
     if (args.length < 2 || typeID == -1) {
         message.channel.send(core.config["cfg"]["teach_error"]);
     } else {
@@ -10,7 +10,7 @@ module.exports = (core, message, text) => {
                 message.channel.send(core.config["cfg"]["teach_present_error"]);
             } else {
                 core.db.addVocab(typeID, word, () => {
-                    message.react(ACKNOWLEDGEMENT_EMOTE);
+                    message.react(core.ACKNOWLEDGEMENT_EMOTE);
                 });
             }
         });

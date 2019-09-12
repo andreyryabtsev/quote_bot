@@ -1,6 +1,8 @@
+const VOCAB_WORDS_PER_MESSAGE = 120;
+
 module.exports = (core, message, text) => {
     let args = core.util.args(text), pos = "<" + args[0] + ">";
-    let typeID = PARTS_OF_SPEECH.indexOf(pos);
+    let typeID = core.PARTS_OF_SPEECH.indexOf(pos);
     if (args.length < 1 || typeID == -1 && args[0] != "all") {
         message.channel.send(core.config["cfg"]["vocab_error"]);
     } else {

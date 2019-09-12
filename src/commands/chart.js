@@ -10,13 +10,13 @@ module.exports = (core, message, text) => {
             mentionUsers = [message.author];
             mentionMembers = [message.member];
         }
-        produceChart(core.db, message.channel, mentionUsers, mentionMembers, numDays);
+        produceChart(core, message.channel, mentionUsers, mentionMembers, numDays);
     }
 }
 
 // Process all logged events for the selected users and computes the number of days ago they were produced
 // Then, write results to ./chart/chartdata and invoke the python visualizer, sending image to channel.
-let produceChart = (db, channel, users, members, days) => {
+let produceChart = (core, channel, users, members, days) => {
     core.db.allLogs(users.map(user => user.id), Date.now() - days * msInDay, results => {
         let usersToLogs = {};
         for (let row of results) {
@@ -27,14 +27,14 @@ let produceChart = (db, channel, users, members, days) => {
         for (let nickname in usersToLogs) {
             chartfile += nickname + "\n" + usersToLogs[nickname].join(" ") + "\n";
         }
-        fs.writeFileSync("../chart/chartdata", chartfile, 'utf8');
-        cp.exec("python3 ../chart/chartgen.py ../chart/", (error, stdout, stderr) => {
+        core.fs.writeFileSync("chart/chartdata", chartfile, 'utf8');
+        core.cp.exec("python3 chart/chartgen.py chart/", (error, stdout, stderr) => {
             if (error) core.util.logError("[chartgen] ERROR: " + error);
             if (stdout) console.log("[chartgen] " + stdout);
             if (stderr) core.util.logError("[chartgen] " + stderr);
             channel.send({
                 files: [{
-                    attachment: '../chart/chart.png',
+                    attachment: 'chart/chart.png',
                     name: 'botchart.png'
                 }]
             })

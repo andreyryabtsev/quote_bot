@@ -15,7 +15,7 @@ module.exports = (core, message, text) => {
                 seconds: seconds,
                 note: note
             });
-            message.react(ACKNOWLEDGEMENT_EMOTE);
+            message.react(core.ACKNOWLEDGEMENT_EMOTE);
         });
     }
 }
