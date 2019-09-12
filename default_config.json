@@ -1,4 +1,7 @@
 {
+    "alias": {
+        "log": "animal"
+    },
     "general": {
         "permission_denied_error": "You do not have permission to access this command!",
         "bot_name": "counter bot",
@@ -23,7 +26,6 @@
         "search_error_blank": "You have never created a vote!"
     },
     "logs": {
-        "log_command": "animal",
         "log_response": "Thank you {u}, I have logged your animal product usage.",
         "undo_response": "{u}, I removed your last log entry!",
         "undo_error": "You have never used an animal product!",
@@ -89,7 +91,7 @@
         "`!vote <count> <opt1>...<optcount> <name>`": "initiate a vote on `name` with `count` options listed in `opt1` through `optcount`; votes are counted by reacting to the bot's reply",
         "`!votestatus [query]`": "report the current results for the most recent vote; optionally use the most recent vote whose name matches `query` instead",
         "`!when [@mention]`": "show your most recent event log with your custom signature; optionally show `@mention`'s log instead",
-        "`!{logs.log_command} [caption]`": "add an event log; optionally caption it with `caption`",
+        "`!{alias.log} [caption]`": "add an event log; optionally caption it with `caption`",
         "**:pushpin: pinning**": "if {quotes.pin_threshold} users react with :pushpin: to a message, that message is added as a quote attributed to the message's author"
     },
     "help": {
