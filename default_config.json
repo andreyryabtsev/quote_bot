@@ -52,7 +52,11 @@
     "reminders": {
         "reminder": "{u}, you asked me to remind you: {n}",
         "late_reminder": "{u}, I was offline but you asked me to remind you: {n}",
-        "format_error": "Invalid time format!"
+        "format_error": "Invalid time format!",
+        "output_empty": "== No reminders found. ==",
+        "output_title": "== {n} reminder{p} ==",
+        "output_row": ":*: in {d} : {n}",
+        "output_footer": "~~~"
     },
     "clear": {
         "error": "Please specify a number of messages to remove (between 0 and 100)",
