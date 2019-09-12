@@ -6,7 +6,9 @@ module.exports = (core, message) => {
         } else {
             let output = "```";
             let title = core.config["reminders"]["output_title"];
-            output += title ? title + "\n" : "";
+            output += title ? 
+                title.replace("{n}", reminders.length).replace("{p}", reminders.length > 0 ? "s" : "")
+                 + "\n" : "";
             for (let reminder of reminders) {
                 let alarmTime = parseInt(reminder.invoked_on) + reminder.delay_seconds * 1000;
                 let duration = core.util.formatDuration(alarmTime - Date.now());
