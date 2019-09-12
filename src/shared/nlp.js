@@ -5,7 +5,8 @@ const REPLACEMENT_MAP = {
 };
 const MARKERS = [": ", "choose between ", "choose from ", "choose ", "would you rather "];
 
-let replacementRegex = new RegExp(Object.keys(REPLACEMENT_MAP).join("|"), "g");
+let markerRegex = new RegExp("^.*(" + MARKERS.join("|") + ")", "g"),
+    replacementRegex = new RegExp(Object.keys(REPLACEMENT_MAP).join("|"), "g");
 
 module.exports = (core, message) => {
     if (message.author.bot) return;
