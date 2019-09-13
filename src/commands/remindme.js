@@ -1,5 +1,10 @@
 module.exports = (core, message, text) => {
-    let seconds = core.util.timeToSecs(core.util.args(text)[0]),
+    let args = core.util.args(text);
+    if (args.length < 1) {
+        message.channel.send(core.config["reminders"]["format_error"]);
+        return;
+    }
+    let seconds = core.util.timeToSecs(args[0]),
         note = text.substring(text.indexOf(" ") + 1),
         now = Date.now();
     if (note === text) note = "";
