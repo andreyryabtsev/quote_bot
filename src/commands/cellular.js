@@ -1,3 +1,5 @@
+const T = 300, p = 0.7;
+
 module.exports = (core, message, text) => {
     let s = parseInt(core.util.args(text)[0]);
     if (isNaN(s) || s < 2 || s > 30) {
@@ -8,7 +10,7 @@ module.exports = (core, message, text) => {
     for (let x = 0; x < s; x++) {
         cells.push([]);
         for (let y = 0; y < s; y++) {
-            cells[x].push(Math.random() > 0.7 ? true : false);
+            cells[x].push(Math.random() > p ? true : false);
         }
     }
     message.channel.send(drawWorld(cells)).then(message => {
@@ -16,12 +18,13 @@ module.exports = (core, message, text) => {
     });
 }
 
-let drawWorld = (cells) => {
+let drawWorld = (cells, iteration) => {
     let content = "```";
     for (let r = 0; r < cells.length; r++) {
         for (let c = 0; c < cells.length; c++) {
             content += cells[r][c] ? "▦" : "▢";
         }
+        if (r == 0 && iteration) content += iteration + "/" + T + "\n";
         content += "\n";
     }
     content += "```";
@@ -62,21 +65,26 @@ let automate = (iteration, message, cells) => {
     let s = cells.length;
     let newCells = new Array(s);
     for (let i = 0; i < s; i++) newCells[i] = new Array(s);
-    for (let r = 0; r < s; r++) {
-        for (let c = 0; c < s; c++) {
-            let n = neighbors(cells, r, c);
-            if (cells[r][c]) {
-                newCells[r][c] = n >= 2 && n <= 3;
-            } else {
-                newCells[r][c] = n == 3;
-            }
-        }
-    }
-    cells = newCells;
-    let editPromise = message.edit(drawWorld(cells));
-    if (iteration <= 300) {
+    automata["gameOfLife"](cells, newCells);
+    let editPromise = message.edit(drawWorld(cells, iteration));
+    if (iteration <= T) {
         editPromise.then(newMessage => {
             setTimeout(() => automate(iteration + 1, newMessage, cells), 4000);
         });
     }
 }
+
+const automata = {
+    "gameOfLife": (cells, newCells) => {
+        for (let r = 0; r < s; r++) {
+            for (let c = 0; c < s; c++) {
+                let n = neighbors(cells, r, c);
+                if (cells[r][c]) {
+                    newCells[r][c] = n >= 2 && n <= 3;
+                } else {
+                    newCells[r][c] = n == 3;
+                }
+            }
+        }
+    }
+};
