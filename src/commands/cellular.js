@@ -76,7 +76,7 @@ let automate = (iteration, message, cells) => {
     let editPromise = message.edit(drawWorld(cells));
     if (iteration <= 300) {
         editPromise.then(newMessage => {
-            setTimeout(() => automate(iteration + 1, newMessage, cells), 500);
+            setTimeout(() => automate(iteration + 1, newMessage, cells), 4000);
         });
     }
 }
