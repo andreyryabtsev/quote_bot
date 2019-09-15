@@ -72,7 +72,7 @@ let automate = (message, cells) => {
             }
         }
     }
-    let cells = newCells;
+    cells = newCells;
     let sendPromise = sendWorld(message.channel, cells);
     sendPromise.then(newMessage => {
         setTimeout(() => automate(newMessage, cells), 500);
