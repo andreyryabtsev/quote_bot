@@ -11,12 +11,12 @@ module.exports = (core, message, text) => {
             cells[x].push(Math.random() > 0.3 ? true : false);
         }
     }
-    sendWorld(message.channel, cells).then(message => {
+    message.channel.send(drawWorld(cells)).then(message => {
         automate(message, cells);
     });
 }
 
-let sendWorld = (channel, cells) => {
+let drawWorld = (cells) => {
     let content = "```";
     for (let r = 0; r < cells.length; r++) {
         for (let c = 0; c < cells.length; c++) {
@@ -25,7 +25,7 @@ let sendWorld = (channel, cells) => {
         content += "\n";
     }
     content += "```";
-    return channel.send(content);
+    return content;
 }
 
 let neighbors = (cells, r, c) => {
@@ -73,8 +73,7 @@ let automate = (message, cells) => {
         }
     }
     cells = newCells;
-    let sendPromise = sendWorld(message.channel, cells);
-    sendPromise.then(newMessage => {
+    message.edit(drawWorld(cells)).then(newMessage => {
         setTimeout(() => automate(newMessage, cells), 500);
     });
 }
