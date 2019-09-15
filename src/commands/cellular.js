@@ -13,7 +13,7 @@ module.exports = (core, message, text) => {
             cells[x].push(Math.random() > p ? true : false);
         }
     }
-    message.channel.send(drawWorld(cells)).then(message => {
+    message.channel.send(drawWorld(cells, 1)).then(message => {
         automate(1, message, cells);
     });
 }
@@ -65,7 +65,7 @@ let automate = (iteration, message, cells) => {
     let s = cells.length;
     let newCells = new Array(s);
     for (let i = 0; i < s; i++) newCells[i] = new Array(s);
-    automata["gameOfLife"](cells, newCells);
+    automata["gameOfLife"](cells, newCells, s);
     let editPromise = message.edit(drawWorld(cells, iteration));
     if (iteration <= T) {
         editPromise.then(newMessage => {
@@ -75,7 +75,7 @@ let automate = (iteration, message, cells) => {
 }
 
 const automata = {
-    "gameOfLife": (cells, newCells) => {
+    "gameOfLife": (cells, newCells, s) => {
         for (let r = 0; r < s; r++) {
             for (let c = 0; c < s; c++) {
                 let n = neighbors(cells, r, c);
