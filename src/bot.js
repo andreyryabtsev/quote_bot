@@ -38,7 +38,7 @@ const discord = require("discord.js");
 const fs = require("fs");
 const cp = require('child_process');
 const init = require("./lib/coreUtil.js");
-var core, config, client, filter, reminders, reminderInterval, automata = {}, commands = {}, shared = {};
+var core, config, client, filter, reminders, reminderInterval, commands = {}, shared = {};
 
 // Iterate over all known users and ensure each is registered; load reminders
 function initializeDB(callback) {
@@ -91,7 +91,7 @@ async function boot() {
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord.");
         initializeDB(() => {
-            core = {client, db, fs, cp, util, filter, config, shared, reminders, automata,
+            core = {client, db, fs, cp, util, filter, config, shared, reminders,
                 ACKNOWLEDGEMENT_EMOTE, PARTS_OF_SPEECH, VOTE_REACTIONS, REMINDER_POLLING_RATE, vocabUpdate: null};
             bindAPIEvents();
             console.log("[BOOT] Initialized all data, ready.");
