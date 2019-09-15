@@ -11,6 +11,7 @@ module.exports = (core, message, text) => {
             cells[x].push(Math.random() > 0.3 ? true : false);
         }
     }
+    core.automata[message.id] = 0;
     message.channel.send(drawWorld(cells)).then(message => {
         automate(message, cells);
     });
@@ -73,7 +74,13 @@ let automate = (message, cells) => {
         }
     }
     cells = newCells;
-    message.edit(drawWorld(cells)).then(newMessage => {
-        setTimeout(() => automate(newMessage, cells), 500);
-    });
+    let editPromise = message.edit(drawWorld(cells));
+    core.automata[message.id]++;
+    if (core.automata[message.id] <= 300) {
+        editPromise.then(newMessage => {
+            setTimeout(() => automate(newMessage, cells), 500);
+        });
+    } else {
+        delete core.automata[message.id];
+    }
 }
