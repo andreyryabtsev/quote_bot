@@ -1,8 +1,10 @@
-const T = 300, p = 0.7;
+const T = 300, p = 0.7, WAIT = 3000;
 
 module.exports = (core, message, text) => {
-    let s = parseInt(core.util.args(text)[0]);
-    if (isNaN(s) || s < 2 || s > 30) {
+    let args = core.util.args(text),
+        s = parseInt(args[0]),
+        name = args.length > 1 ? args[1] : "game of life";
+    if (isNaN(s) || s < 2 || s > 35) {
         message.channel.send("no fuck you");
         return;
     }
@@ -13,18 +15,20 @@ module.exports = (core, message, text) => {
             cells[x].push(Math.random() > p ? true : false);
         }
     }
-    message.channel.send(drawWorld(cells, 1)).then(message => {
-        automate(1, message, cells);
+    let automaton = { iteration: 1, ruleset: name, cells };
+    message.channel.send(drawWorld(automaton)).then(message => {
+        automate(automaton, message);
     });
 }
 
-let drawWorld = (cells, iteration) => {
+let drawWorld = (automaton) => {
+    let cells = automaton.cells, iteration = automaton.iteration;
     let content = "```";
     for (let r = 0; r < cells.length; r++) {
         for (let c = 0; c < cells.length; c++) {
             content += cells[r][c] ? "▦" : "▢";
         }
-        if (r == 0 && iteration) content += iteration + "/" + T + "\n";
+        if (r == 0) content += iteration + "/" + T;
         content += "\n";
     }
     content += "```";
@@ -61,21 +65,24 @@ let neighbors = (cells, r, c) => {
     return n;
 }
 
-let automate = (iteration, message, cells) => {
+let automate = (automaton, message) => {
+    let cells = automaton.cells, iteration = automaton.iteration, ruleset = automaton.ruleset;
     let s = cells.length;
     let newCells = new Array(s);
     for (let i = 0; i < s; i++) newCells[i] = new Array(s);
-    automata["gameOfLife"](cells, newCells, s);
-    let editPromise = message.edit(drawWorld(cells, iteration));
+    automata[ruleset](cells, newCells, s);
+    automaton.cells = newCells;
+    automaton.iteration++;
+    let editPromise = message.edit(drawWorld(automaton, iteration));
     if (iteration <= T) {
         editPromise.then(newMessage => {
-            setTimeout(() => automate(iteration + 1, newMessage, cells), 4000);
+            setTimeout(() => automate(automaton, newMessage), WAIT);
         });
     }
 }
 
 const automata = {
-    "gameOfLife": (cells, newCells, s) => {
+    "game of life": (cells, newCells, s) => {
         for (let r = 0; r < s; r++) {
             for (let c = 0; c < s; c++) {
                 let n = neighbors(cells, r, c);
