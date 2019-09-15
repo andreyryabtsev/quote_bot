@@ -17,7 +17,7 @@ module.exports = (core, message, text) => {
     }
     let automaton = { iteration: 1, ruleset: name, cells };
     message.channel.send(drawWorld(automaton)).then(message => {
-        automate(automaton, message);
+        automate(core, automaton, message);
     });
 }
 
@@ -35,63 +35,50 @@ let drawWorld = (automaton) => {
     return content;
 }
 
-let neighbors = (cells, r, c) => {
-    let s = cells.length,
-        n = 0;
-    if (r > 0) {
+let helpers = {
+    neighbors: (cells, r, c) => {
+        let s = cells.length,
+            n = 0;
+        if (r > 0) {
+            if (c > 0) {
+                n += cells[r - 1][c - 1] ? 1 : 0;
+            }
+            if (c < s - 1) {
+                n += cells[r - 1][c + 1] ? 1 : 0;
+            }
+            n += cells[r - 1][c] ? 1 : 0;
+        }
+        if (r < s - 1) {
+            if (c > 0) {
+                n += cells[r + 1][c - 1] ? 1 : 0;
+            }
+            if (c < s - 1) {
+                n += cells[r + 1][c + 1] ? 1 : 0;
+            }
+            n += cells[r + 1][c] ? 1 : 0;
+        }
         if (c > 0) {
-            n += cells[r - 1][c - 1] ? 1 : 0;
+            n += cells[r][c - 1] ? 1 : 0;
         }
         if (c < s - 1) {
-            n += cells[r - 1][c + 1] ? 1 : 0;
+            n += cells[r][c + 1] ? 1 : 0;
         }
-        n += cells[r - 1][c] ? 1 : 0;
+        return n;
     }
-    if (r < s - 1) {
-        if (c > 0) {
-            n += cells[r + 1][c - 1] ? 1 : 0;
-        }
-        if (c < s - 1) {
-            n += cells[r + 1][c + 1] ? 1 : 0;
-        }
-        n += cells[r + 1][c] ? 1 : 0;
-    }
-    if (c > 0) {
-        n += cells[r][c - 1] ? 1 : 0;
-    }
-    if (c < s - 1) {
-        n += cells[r][c + 1] ? 1 : 0;
-    }
-    return n;
 }
 
-let automate = (automaton, message) => {
+let automate = (core, automaton, message) => {
     let cells = automaton.cells, iteration = automaton.iteration, ruleset = automaton.ruleset;
     let s = cells.length;
     let newCells = new Array(s);
     for (let i = 0; i < s; i++) newCells[i] = new Array(s);
-    automata[ruleset](cells, newCells, s);
+    core.automata[ruleset](cells, newCells, s, helpers);
     automaton.cells = newCells;
     automaton.iteration++;
-    let editPromise = message.edit(drawWorld(automaton, iteration));
+    let editPromise = message.edit(drawWorld(automaton));
     if (iteration <= T) {
         editPromise.then(newMessage => {
-            setTimeout(() => automate(automaton, newMessage), WAIT);
-        });
+            setTimeout(() => automate(core, automaton, newMessage), WAIT);
+        }).catch(e => {});
     }
 }
-
-const automata = {
-    "game of life": (cells, newCells, s) => {
-        for (let r = 0; r < s; r++) {
-            for (let c = 0; c < s; c++) {
-                let n = neighbors(cells, r, c);
-                if (cells[r][c]) {
-                    newCells[r][c] = n >= 2 && n <= 3;
-                } else {
-                    newCells[r][c] = n == 3;
-                }
-            }
-        }
-    }
-};
