@@ -13,7 +13,7 @@ module.exports = (core, message, text) => {
     }
     core.automata[message.id] = 0;
     message.channel.send(drawWorld(cells)).then(message => {
-        automate(message, cells);
+        automate(core, message, cells);
     });
 }
 
@@ -59,7 +59,7 @@ let neighbors = (cells, r, c) => {
     return n;
 }
 
-let automate = (message, cells) => {
+let automate = (core, message, cells) => {
     let s = cells.length;
     let newCells = new Array(s);
     for (let i = 0; i < s; i++) newCells[i] = new Array(s);
@@ -78,7 +78,7 @@ let automate = (message, cells) => {
     core.automata[message.id]++;
     if (core.automata[message.id] <= 300) {
         editPromise.then(newMessage => {
-            setTimeout(() => automate(newMessage, cells), 500);
+            setTimeout(() => automate(core, newMessage, cells), 500);
         });
     } else {
         delete core.automata[message.id];
