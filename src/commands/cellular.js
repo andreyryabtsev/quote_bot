@@ -38,32 +38,32 @@ let drawWorld = (automaton) => {
 let helpers = {
     neighbors: (cells, r, c) => {
         let s = cells.length,
-            n = 0;
+            out = new Array(8);
         if (r > 0) {
             if (c > 0) {
-                n += cells[r - 1][c - 1] ? 1 : 0;
+                out[7] = cells[r - 1][c - 1];
             }
             if (c < s - 1) {
-                n += cells[r - 1][c + 1] ? 1 : 0;
+                out[1] = cells[r - 1][c + 1];
             }
-            n += cells[r - 1][c] ? 1 : 0;
+            out[0] = cells[r - 1][c];
         }
         if (r < s - 1) {
             if (c > 0) {
-                n += cells[r + 1][c - 1] ? 1 : 0;
+                out[5] = cells[r + 1][c - 1];
             }
             if (c < s - 1) {
-                n += cells[r + 1][c + 1] ? 1 : 0;
+                out[3] = cells[r + 1][c + 1];
             }
-            n += cells[r + 1][c] ? 1 : 0;
+            out[4] = cells[r + 1][c];
         }
         if (c > 0) {
-            n += cells[r][c - 1] ? 1 : 0;
+            out[6] = cells[r][c - 1];
         }
         if (c < s - 1) {
-            n += cells[r][c + 1] ? 1 : 0;
+            out[2] = cells[r][c + 1];
         }
-        return n;
+        return out;
     }
 }
 
