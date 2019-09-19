@@ -11,7 +11,7 @@ module.exports = (core, message, text) => {
         return;
     }
 
-    let voteString = VOTE_REACTIONS[0] + ": " + args[1];
+    let voteString = core.VOTE_REACTIONS[0] + ": " + args[1];
     for (let i = 0; i < count; i++) {
         options.push(args[i + 1]);
         if (i > 0) voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
