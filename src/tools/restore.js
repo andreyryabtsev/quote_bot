@@ -56,9 +56,11 @@ async function _forEachMessage(client, channel, fn, beforeId, i) {
     });
 
     let m = res.last(1)[0];
-    let portionDone = (new Date() - m.createdAt) / TOTAL * 100;
-    l(portionDone.toFixed(2) + "% done; last message posted at: ", m.createdAt);
-    l("Added " + addquotes + " quotes, pinned " + pinquotes + " quotes, logged " + logs + " logs");
+    if (i % 4 == 0) {
+        let portionDone = (new Date() - m.createdAt) / TOTAL * 100;
+        l(portionDone.toFixed(2) + "% done; last message posted at: ", m.createdAt);
+        l("Added " + addquotes + " quotes, pinned " + pinquotes + " quotes, logged " + logs + " logs");
+    }
     let newBeforeId = m.id;
     await _forEachMessage(client, channel, fn, newBeforeId, i + 1);
 }
