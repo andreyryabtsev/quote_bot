@@ -14,7 +14,7 @@ module.exports = (core, message, text) => {
     let voteString = core.VOTE_REACTIONS[0] + ": " + args[1];
     for (let i = 0; i < count; i++) {
         options.push(args[i + 1]);
-        if (i > 0) voteString += ", " + VOTE_REACTIONS[i] + ": " + options[i];
+        if (i > 0) voteString += ", " + core.VOTE_REACTIONS[i] + ": " + options[i];
     }
     let voteName = args.slice(count + 1).join(" ");
     let voteProposalString = core.config["vote"]["proposal"]
@@ -30,5 +30,5 @@ module.exports = (core, message, text) => {
 // Recursively iterate over 0..n-1 and add vote reactions sequentially.
 let addVoteReactions = (core, message, i, n) => {
     if (i == n) return;
-    message.react(core.util.VOTE_REACTIONS[i]).then(r => addVoteReactions(core, message, i + 1, n));
+    message.react(core.VOTE_REACTIONS[i]).then(r => addVoteReactions(core, message, i + 1, n));
 }
