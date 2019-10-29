@@ -106,6 +106,14 @@ module.exports.timeToSecs = (input) => { //converts a time in *d*h*m* format to 
     if (input.length == 0) {
         return null;
     }
+    if (input.indexOf('w') != -1) {
+        let weeks = input.slice(0, input.indexOf('w'));
+        if (!digitsOnly.test(weeks)) {
+            return null;
+        }
+        total += 7 * 86400 * parseInt(days);
+        input = input.slice(input.indexOf('w') + 1);
+    }
     if (input.indexOf('d') != -1) {
         let days = input.slice(0, input.indexOf('d'));
         if (!digitsOnly.test(days)) {
