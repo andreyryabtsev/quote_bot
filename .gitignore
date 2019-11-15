@@ -2,6 +2,7 @@ log.txt
 errorlog.txt
 package-lock.json
 pid
+.idea/
 oldlogs/
 node_modules/
 chart/chart.png
