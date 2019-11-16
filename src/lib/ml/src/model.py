@@ -1,11 +1,11 @@
 import torch.nn as nn
-import torch.functional as F
-import dataset
+import torch.nn.functional as F
+import pt_util
 
 
-class NLTextDataset(nn.Module):
+class LanguageModel(nn.Module):
     def __init__(self, vocab_size, feature_size):
-        super(NLTextDataset, self).__init__()
+        super(LanguageModel, self).__init__()
         self.vocab_size = vocab_size
         self.feature_size = feature_size
         self.encoder = nn.Embedding(self.vocab_size, self.feature_size)

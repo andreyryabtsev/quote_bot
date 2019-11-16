@@ -30,7 +30,7 @@ def prepare_data_words(data_path, file_name):
     print(f"Filtering ({len(counts)} unique tokens)")
 
     voc2ind = {}
-    to_delete = [key for key in counts if counts[key] < 5]
+    to_delete = [key for key in counts if counts[key] < 2]
     for k in to_delete: del counts[k]
 
     voc2ind = {k: i for i, (k, v) in zip(range(len(counts)), counts.items())}
@@ -50,8 +50,8 @@ def prepare_data_words(data_path, file_name):
 
     print("Saving...")
     pickle.dump({'tokens': train_text, 'ind2voc': ind2voc, 'voc2ind': voc2ind},
-                open(data_path + 'words_train.pkl', 'wb'))
-    pickle.dump({'tokens': test_text, 'ind2voc': ind2voc, 'voc2ind': voc2ind}, open(data_path + 'words_test.pkl', 'wb'))
+                open(data_path + '/words_train.pkl', 'wb'))
+    pickle.dump({'tokens': test_text, 'ind2voc': ind2voc, 'voc2ind': voc2ind}, open(data_path + '/words_test.pkl', 'wb'))
 
 
 # prepare_data_words(DATA_PATH + 'harry_potter.txt')
@@ -65,4 +65,4 @@ if len(sys.argv) != 2:
 
 path, _, file = sys.argv[1].rpartition("/")
 
-prepare_data_words(f"{path}/{file}")
+prepare_data_words(path, file)
