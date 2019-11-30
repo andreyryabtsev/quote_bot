@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+node -i -e "const bot = require ('./src/bot.js')"

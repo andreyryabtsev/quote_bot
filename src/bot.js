@@ -86,7 +86,6 @@ async function boot() {
         }
     }
     console.log("[BOOT] Loaded filter, prepared help, loaded custom responses.");
-    client = new discord.Client();
     client.on('error', util.logError);
     client.on('ready', e => {
         console.log("[BOOT] Signed in to Discord.");
@@ -102,4 +101,7 @@ async function boot() {
         util.fatalError();
     });
 }
+
+client = new discord.Client();
+module.exports = {client};
 db.initialize(boot);
