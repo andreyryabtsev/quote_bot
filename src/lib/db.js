@@ -114,10 +114,10 @@ module.exports.bumpReminders = (ids, bumpSeconds, now, callback) => {
     let valueString = "";
     for (let i=0; i < ids.length; i++) {
         let id = ids[i], seconds = bumpSeconds[i];
-        valueString += ",(" + id + "," + now + "," + seconds + ", 0)";
+        valueString += ",(" + id + "," + now + "," + seconds + ", 0, 0, 0, '')";
     }
     valueString = valueString.substring(1);
-    connection.query("INSERT INTO reminders (id, invoked_on, delay_seconds, repeat_seconds) VALUES " + valueString + " ON DUPLICATE KEY UPDATE invoked_on=VALUES(invoked_on),delay_seconds=VALUES(delay_seconds);", [], (error, results, fields) => {
+    connection.query("INSERT INTO reminders (id, invoked_on, delay_seconds, repeat_seconds, channel_id, user_id, content) VALUES " + valueString + " ON DUPLICATE KEY UPDATE invoked_on=VALUES(invoked_on),delay_seconds=VALUES(delay_seconds);", [], (error, results, fields) => {
         handleError(error);
         callback();
     });
