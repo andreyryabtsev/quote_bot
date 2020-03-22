@@ -117,7 +117,7 @@ module.exports.bumpReminders = (ids, bumpSeconds, now, callback) => {
         valueString += ",(" + id + "," + now + "," + seconds + ")";
     }
     valueString = valueString.substring(1);
-    connection.query("INSERT INTO reminders (id, invoked_on, seconds) VALUES " + valueString + " ON DUPLICATE KEY UPDATE invoked_on=VALUES(invoked_on),seconds=VALUES(seconds);", [], (error, results, fields) => {
+    connection.query("INSERT INTO reminders (id, invoked_on, delay_seconds) VALUES " + valueString + " ON DUPLICATE KEY UPDATE invoked_on=VALUES(invoked_on),delay_seconds=VALUES(delay_seconds);", [], (error, results, fields) => {
         handleError(error);
         callback();
     });
