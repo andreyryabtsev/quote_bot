@@ -4,12 +4,12 @@ import pt_util
 
 
 class LanguageModel(nn.Module):
-    def __init__(self, vocab_size, feature_size):
+    def __init__(self, vocab_size, feature_size, dropout=0.0):
         super(LanguageModel, self).__init__()
         self.vocab_size = vocab_size
         self.feature_size = feature_size
         self.encoder = nn.Embedding(self.vocab_size, self.feature_size)
-        self.gru = nn.GRU(self.feature_size, self.feature_size, num_layers=3, batch_first=True)
+        self.gru = nn.GRU(self.feature_size, self.feature_size, num_layers=3, dropout=dropout, batch_first=True)
         self.decoder = nn.Linear(self.feature_size, self.vocab_size)
 
         # This shares the encoder and decoder weights as described in lecture.

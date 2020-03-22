@@ -30,7 +30,7 @@ def prepare_data_words(data_path, file_name):
     print(f"Filtering ({len(counts)} unique tokens)")
 
     voc2ind = {}
-    to_delete = [key for key in counts if counts[key] < 2]
+    to_delete = []  # key for key in counts if counts[key] < 3]
     for k in to_delete: del counts[k]
 
     voc2ind = {k: i for i, (k, v) in zip(range(len(counts)), counts.items())}

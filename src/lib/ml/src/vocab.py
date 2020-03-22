@@ -20,7 +20,7 @@ class WordVocabulary(object):
         out = ""
         for ind in arr:
             voc = self.ind2voc[int(ind)]
-            if out != "" and voc not in PUNCTUATION:
+            if out != "" and voc not in PUNCTUATION and not out.endswith((":", "<@!")):
                 voc = " " + voc
             # else:
             #     print(f"skipping punctuation on {voc}")

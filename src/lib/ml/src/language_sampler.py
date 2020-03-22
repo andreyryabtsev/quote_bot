@@ -1,4 +1,5 @@
 import torch
+import random
 
 
 def sample(output, num):
@@ -52,6 +53,10 @@ class LanguageSampler:
 
     def generate_language(self, model, device, seed_words, sequence_length, vocab, strategy='max'):
         model.eval()
+
+        if seed_words == "":
+            words = list(vocab.voc2ind.keys())
+            seed_words = words[random.randint(0, len(words) - 1)]
 
         with torch.no_grad():
             seed_words_arr = vocab.words_to_array(seed_words)
