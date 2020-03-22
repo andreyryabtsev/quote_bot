@@ -43,8 +43,8 @@ module.exports.addQuote = (discordID, time, content, callback) => {
     });
 }
 
-module.exports.addReminder = (discordID, channelID, time, content, seconds, callback) => {
-    connection.query("INSERT INTO reminders (invoked_on, channel_id, content, delay_seconds, user_id) SELECT ?, ?, ?, ?, id FROM users WHERE discord_id = ?;", [time, channelID, content, seconds, discordID], (error, results, fields) => {
+module.exports.addReminder = (discordID, channelID, time, content, seconds, repeatSeconds, callback) => {
+    connection.query("INSERT INTO reminders (invoked_on, channel_id, content, delay_seconds, repeat_seconds, user_id) SELECT ?, ?, ?, ?, ?, id FROM users WHERE discord_id = ?;", [time, channelID, content, seconds, repeatSeconds, discordID], (error, results, fields) => {
         handleError(error);
         callback(results);
     });
@@ -95,7 +95,7 @@ module.exports.allQuotes = (callback) => {
 
 module.exports.allReminders = (callback) => {
     connection.query(
-        "SELECT reminders.id, reminders.channel_id, reminders.invoked_on, reminders.content, reminders.delay_seconds, users.discord_id FROM reminders INNER JOIN users ON reminders.user_id = users.id;", (error, results, fields) => {
+        "SELECT reminders.id, reminders.channel_id, reminders.invoked_on, reminders.content, reminders.delay_seconds, reminders.repeat_seconds, users.discord_id FROM reminders INNER JOIN users ON reminders.user_id = users.id;", (error, results, fields) => {
         handleError(error);
         callback(results);
     });
@@ -107,6 +107,19 @@ module.exports.authoredQuotes = (discordID, callback) => {
         [discordID], (error, results, fields) => {
         handleError(error);
         callback(results);
+    });
+}
+
+module.exports.bumpReminders = (ids, bumpSeconds, now, callback) => {
+    let valueString = "";
+    for (let i=0; i < ids.length; i++) {
+        let id = ids[i], seconds = bumpSeconds[i];
+        valueString += ",(" + id + "," + now + "," + seconds + ")";
+    }
+    valueString = valueString.substring(1);
+    connection.query("INSERT INTO reminders (id, invoked_on, seconds) VALUES " + valueString + " ON DUPLICATE KEY UPDATE invoked_on=VALUES(invoked_on),seconds=VALUES(seconds);", [], (error, results, fields) => {
+        handleError(error);
+        callback();
     });
 }
 
