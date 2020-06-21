@@ -7,9 +7,9 @@ module.exports = (core, message, text) => {
     core.db.recentLogs(id, count, results => {
         let result_lines = [];
         for (let row of results) {
-            let time_since = Date.now() - row.created_at, caption = row.content;
+            let time_since = Date.now() - row.created_at, caption = row.content ? row.content : '<uncaptioned>';
             let time_string = core.util.formatDuration(time_since);
-            result_lines.push(time_string + ": " + caption);
+            result_lines.push(caption + " (" + time_string + " ago)");
         }
         message.channel.send("```\n" + result_lines.join("\n") + "\n```");
     });
