@@ -9,7 +9,7 @@ module.exports = (core, message, text) => {
         for (let row of results) {
             let time_since = Date.now() - row.created_at, caption = row.content;
             let time_string = core.util.formatDuration(time_since);
-            result_lines += time_string + ": " + caption;
+            result_lines.push(time_string + ": " + caption);
         }
         message.channel.send("```\n" + result_lines.join("\n") + "\n```");
     });
