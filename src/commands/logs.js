@@ -4,6 +4,10 @@ module.exports = (core, message, text) => {
             : message.author.id;
     let args = core.util.args(text);
     let count = args.length >= 1 ? parseInt(args[0]) : 5;
+    if (isNaN(count) || count < 2 || count > 35) {
+        message.channel.send("noooooo you can't just ask for " + args[0] + " logs, noooooooooooooooooooo");
+        return;
+    }
     core.db.recentLogs(id, count, results => {
         let result_lines = [];
         for (let row of results) {
