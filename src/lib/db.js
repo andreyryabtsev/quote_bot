@@ -234,6 +234,15 @@ module.exports.quoteName = (discordID, callback) => {
     });
 }
 
+module.exports.recentLogs = (discordID, count, callback) => {
+    connection.query(
+        "SELECT users.nickname, logs.created_at FROM logs INNER JOIN users ON logs.user_id = users.id WHERE users.discord_id = ? ORDER BY CAST(created_at AS UNSIGNED) LIMIT ?;",
+        [discordID, count], (error, results, fields) => {
+        handleError(error);
+        callback(results);
+    });
+}
+
 module.exports.updateQuote = (content, time) => {
     connection.query("UPDATE quotes SET called_at = ? WHERE content = ?;", [time, content], (error, results, fields) => {
         handleError(error);
