@@ -50,12 +50,14 @@
         }
     },
     "reminders": {
+        "confirmation": "{u} I will remind you in {i}. Reminder ID: {id}",
         "reminder": "{u}, you asked me to remind you: {n}",
         "late_reminder": "{u}, I was offline but you asked me to remind you: {n}",
         "format_error": "Invalid time format!",
+        "foreign_error": "This reminder does not exist or does not belong to you.",
         "output_empty": "== No reminders found. ==",
         "output_title": "== {n} reminder{p} ==",
-        "output_row": ":*: in {d} : {n}",
+        "output_row": ":*: ({id}) in {d} : {n}",
         "output_footer": "~~~"
     },
     "clear": {

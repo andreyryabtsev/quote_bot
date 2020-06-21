@@ -19,6 +19,7 @@ module.exports = (core, message) => {
             for (let reminder of callerReminders) {
                 let duration = core.util.formatDuration(reminder.duration);
                 output += core.config["reminders"]["output_row"]
+                    .replace("{id}", reminder.id)
                     .replace("{d}", duration)
                     .replace("{n}", reminder.content)
                     + "\n";

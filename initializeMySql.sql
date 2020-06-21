@@ -55,6 +55,7 @@ CREATE TABLE IF NOT EXISTS reminders(
     id INT AUTO_INCREMENT PRIMARY KEY,
     invoked_on TEXT NOT NULL,
     delay_seconds INT NOT NULL,
+    repeat_seconds INT,
     content TEXT NOT NULL,
     channel_id TEXT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

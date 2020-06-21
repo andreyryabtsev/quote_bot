@@ -1,6 +1,6 @@
 // Scan for reminders frequently and post + delete expired ones
 module.exports = (core) => {
-    let toDelete = [], now = Date.now();
+    let toDelete = [], toBump = [], bumpSeconds = [], now = Date.now();
     for (let i = core.reminders.length - 1; i >= 0; i--) {
         let reminder = core.reminders[i];
         let expiry = parseInt(reminder.start) + reminder.seconds * 1000;
@@ -12,9 +12,17 @@ module.exports = (core) => {
             core.client.channels.get(reminder.channelID).send(template
                 .replace("{u}", "<@" + reminder.discordID + ">")
                 .replace("{n}", reminder.note));
-            core.reminders.splice(i, 1);
-            toDelete.push(reminder.id);
+            if (reminder.repeatSeconds > 0) {
+                reminder.start = now;
+                reminder.seconds = reminder.repeatSeconds;
+                toBump.push(reminder.id);
+                bumpSeconds.push(reminder.seconds);
+            } else {
+                core.reminders.splice(i, 1);
+                toDelete.push(reminder.id);
+            }
         }
     }
     if (toDelete.length > 0) core.db.deleteReminders(toDelete, () => {});
-}
+    if (toBump.length > 0) core.db.bumpReminders(toBump, bumpSeconds, now, () => {});
+};
