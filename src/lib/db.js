@@ -236,7 +236,7 @@ module.exports.quoteName = (discordID, callback) => {
 
 module.exports.recentLogs = (discordID, count, callback) => {
     connection.query(
-        "SELECT users.nickname, logs.created_at FROM logs INNER JOIN users ON logs.user_id = users.id WHERE users.discord_id = ? ORDER BY CAST(logs.created_at AS UNSIGNED) DESC LIMIT ?;",
+        "SELECT users.nickname, logs.content, logs.created_at FROM logs INNER JOIN users ON logs.user_id = users.id WHERE users.discord_id = ? ORDER BY CAST(logs.created_at AS UNSIGNED) DESC LIMIT ?;",
         [discordID, count], (error, results, fields) => {
         handleError(error);
         callback(results);
