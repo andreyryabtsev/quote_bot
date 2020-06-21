@@ -39,5 +39,7 @@ module.exports = (core, message) => {
         } else {
             message.react(util.simpleRandom(hearts));
         }
+    } else {
+        shared.computeRelevance(message, true);
     }
 }
