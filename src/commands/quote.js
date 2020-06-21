@@ -10,7 +10,7 @@ module.exports = (core, message, text) => {
             }
         });
     } else {
-        shared.computeRelevance(message, false);
+        core.shared.computeRelevance(message, false);
     }
 }
 
