@@ -21,7 +21,7 @@ module.exports = (core, message, sendIfRelevant) => {
                     if (words.length > 1) {
                         for (let word of words) {
                             if (!(word in recentGlossary)) recentGlossary[word] = 0;
-                            recentGlossary[word]++;
+                            recentGlossary[word] += (count - i);
                         }
                         if (++count >= n) break;
                     }
@@ -29,7 +29,9 @@ module.exports = (core, message, sendIfRelevant) => {
             }
             if (Object.keys(recentGlossary).length == 0) {
                 let quote = core.util.simpleRandom(quotes);
-                core.shared.sendQuote(message.channel, quote.content, quote.nickname);
+                if (!sendIfRelevant) {
+                    core.shared.sendQuote(message.channel, quote.content, quote.nickname);
+                }
                 return;
             }
             let weightSum = 0.0;
@@ -51,11 +53,8 @@ module.exports = (core, message, sendIfRelevant) => {
 
             quotes.sort((a,b) => b.weight - a.weight); // sort and report quotes for debug purposes
             for (let i = 0; i < Math.min(5, quotes.length); i++) console.log("[relevant_quotes]: " + quotes[i].value.content + ": " + quotes[i].weight);
-            if (sendIfRelevant) {
-                if (quotes[0].weight > 0.5 && Math.random() > 0.9) {
-                    core.shared.sendQuote(message.channel, quote.content, quote.nickname);
-                }
-            } else {
+            let quote = sendIfRelevant ? quotes[0].value : core.util.weightedRandom(quotes);
+            if (!sendIfRelevant || (quotes[0].weight + Math.random()) > 1.3) {
                 core.shared.sendQuote(message.channel, quote.content, quote.nickname);
             }
         });
