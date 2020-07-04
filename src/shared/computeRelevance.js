@@ -21,7 +21,7 @@ module.exports = (core, message, sendIfRelevant) => {
                     if (words.length > 1) {
                         for (let word of words) {
                             if (!(word in recentGlossary)) recentGlossary[word] = 0;
-                            recentGlossary[word] += (count - i);
+                            recentGlossary[word] += n - count;
                         }
                         if (++count >= n) break;
                     }
