@@ -1,6 +1,6 @@
 module.exports = (core, message, text) => {
     let users = message.mentions.users.map(u => u.id);
-    if (!users) {
+    if (!users || !users[0]) {
         message.channel.send(core.config["quotes"]["num_author_error"]);
         return;
     }

@@ -2,7 +2,7 @@ module.exports = (core, message, sendIfRelevant) => {
     let n = core.config["quotes"]["relevancy_params"]["message_count"],
         e = core.config["quotes"]["relevancy_params"]["exponentiation"],
         p = core.config["quotes"]["relevancy_params"]["weight"];
-    message.channel.fetchMessages({ limit: n * 10, before: message.id}).then(messages => {
+    message.channel.fetchMessages({ limit: n * 10 }).then(messages => {
         core.db.allQuotes(quotes => {
             if (quotes.length == 0) {
                 message.channel.send(core.config["quotes"]["quote_error"]);
@@ -16,9 +16,10 @@ module.exports = (core, message, sendIfRelevant) => {
             messages = messages.array();
             let count = 0;
             for (let i = 0; i < n*10; i++) {
+                if (i >= messages.length) break;
                 if (!messages[i].author.bot && !messages[i].content.startsWith("!")) {
                     let words = core.util.toWords(messages[i].content);
-                    if (words.length > 1) {
+                    if (words.length > 0) {
                         for (let word of words) {
                             if (!(word in recentGlossary)) recentGlossary[word] = 0;
                             recentGlossary[word] += n - count;

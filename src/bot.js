@@ -87,7 +87,7 @@ async function boot() {
     }
     console.log("[BOOT] Loaded filter, prepared help, loaded custom responses.");
     client.on('error', util.logError);
-    client.on('ready', e => {
+    client.once('ready', e => {
         console.log("[BOOT] Signed in to Discord.");
         initializeDB(() => {
             core = {client, db, fs, cp, util, filter, config, shared, reminders,
