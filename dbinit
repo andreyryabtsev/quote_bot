@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [ "$EUID" -ne 0 ]
-  then echo "please run with root privilleges"
+  then echo "please run with root privileges"
   exit
 fi
 sudo cp ./sqlconf /etc/mysql/my.cnf
@@ -8,4 +8,4 @@ echo "configured mysql"
 sudo systemctl enable mysql
 echo "enabled mysql"
 sudo mysql -u root < initializeMySql.sql
-echo "initialized bot database and granted privilleges"
+echo "initialized bot database and granted privileges"
