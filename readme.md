@@ -1,6 +1,6 @@
-# Counter-Bot
+# Quote-Bot
 
-A multi-purpose Discord bot that tracks and recites quotes, lists, logs events and reports statistics of those events for each user, charts those events, generates primitive sentences from a malleable vocabulary, and much more.
+A multi-purpose Discord bot that tracks and recites quotes, logs events and reports statistics of those events for each user, visualizes event data, generates primitive sentences from a malleable vocabulary, and much more.
 Consult the "!help" command for a relatively comprehensive list of command-invoked features.
 
 ## Getting Started
@@ -28,7 +28,7 @@ python3 -mpip install matplotlib
 Clone this repository:
 
 ```
-git clone https://github.com/andreyryabtsev/counter_bot.git && cd counter_bot
+git clone https://github.com/andreyryabtsev/quote_bot.git && cd quote_bot
 ```
 
 Install the `discord.js`, `mysql`, and any other dependencies:
@@ -96,11 +96,8 @@ The master branch will be kept stable, so can always be cloned to get the newest
 ## Authors
 
 * **[Andrey Ryabtsev](mailto:ryabtsev@cs.washington.edu)** - *Creator/Developer*
+* **Max Randal** - *Assistant Developer*
 
 ## License
 
-This project is licensed under the MIT License, and is free for all use and modification. Credit is appreciated where appropriate.
-
-## Acknowledgments
-
-* Discord, for providing such an excellent and broad API for highly customizable, fun bots.
+This project is licensed under the MIT License, and is free for all use and modification.
